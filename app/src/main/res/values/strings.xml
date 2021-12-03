@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Youcast</string>
+    <string name="cancel">Annuler</string>
+    <string name="activity_big_picture_name">Statut</string>
 </resources>

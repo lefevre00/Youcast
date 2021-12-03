@@ -9,22 +9,35 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Youcast">
-        <activity android:name=".MainActivity">
+
+        <activity android:name=".activities.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
 
+        <activity android:name=".activities.ShareUrlActivity">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <data android:host="www.youtube.com" android:mimeType="text/*" />
             </intent-filter>
-
         </activity>
-        <service android:name=".Service" android:exported="true">
+
+        <activity
+            android:name=".activities.DownloadStatusActivity"
+            android:label="@string/activity_big_picture_name">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.MainActivity"/>
+        </activity>
+
+        <service
+            android:name=".handlers.DownloadService"
+            android:exported="false">
         </service>
+
     </application>
 
 </manifest>
