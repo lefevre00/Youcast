@@ -187,6 +187,7 @@ class ShareUrlActivity : Activity() {
             // .setGroupSummary(true)
             // .setGroup(GROUP_KEY_YOUR_NAME_HERE)
             .setSubText(1.toString())
+            .setProgress(100, 0, true)
             .addAction(replyAction)
             .setCategory(Notification.CATEGORY_SOCIAL) // Sets priority for 25 and below. For 26 and above, 'priority' is deprecated for
             // 'importance' which is set in the NotificationChannel. The integers representing
