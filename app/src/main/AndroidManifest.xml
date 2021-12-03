@@ -38,6 +38,11 @@
             android:exported="false">
         </service>
 
+        <service
+            android:name=".handlers.CancelTrackIntentService"
+            android:exported="false">
+        </service>
+
     </application>
 
 </manifest>

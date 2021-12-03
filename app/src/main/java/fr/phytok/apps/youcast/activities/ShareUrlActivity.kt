@@ -9,20 +9,23 @@ import android.os.Bundle
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.core.app.RemoteInput
 import androidx.core.app.TaskStackBuilder
 import androidx.core.content.ContextCompat
 import fr.phytok.apps.youcast.GlobalNotificationBuilder
 import fr.phytok.apps.youcast.NotificationUtil
 import fr.phytok.apps.youcast.R
-import fr.phytok.apps.youcast.handlers.BigPictureSocialIntentService
-import fr.phytok.apps.youcast.model.BigPictureStyleSocialAppData
+import fr.phytok.apps.youcast.handlers.CancelTrackIntentService
+import fr.phytok.apps.youcast.model.TrackAppData
+import fr.phytok.apps.youcast.yas.Thumbnail
+import java.time.Duration
 
 
 class ShareUrlActivity : Activity() {
 
     private val TAG = "LoadUrlActivity"
     lateinit var mNotificationManagerCompat : NotificationManagerCompat
+
+    // TODO: Should pair Notif ID with track
     val NOTIFICATION_ID = 888
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -62,11 +65,10 @@ class ShareUrlActivity : Activity() {
 
 
         // 0. Get your data (everything unique per Notification).
-        val bigPictureStyleSocialAppData = BigPictureStyleSocialAppData.instance
+        val appData = getTrackData()
 
         // 1. Create/Retrieve Notification Channel for O and beyond devices (26+).
-        val notificationChannelId =
-            NotificationUtil.createNotificationChannel(this, bigPictureStyleSocialAppData!!)
+        val notificationChannelId = NotificationUtil.createNotificationChannel(this)
 
         // 2. Build the BIG_PICTURE_STYLE.
 //        val bigPictureStyle: BigPictureStyle =
@@ -115,6 +117,7 @@ class ShareUrlActivity : Activity() {
             mainIntent,
             PendingIntent.FLAG_UPDATE_CURRENT
         )
+        mainIntent.putExtra(CancelTrackIntentService.EXTRA_NOTIF_ID, NOTIFICATION_ID)
 
         // 4. Set up RemoteInput, so users can input (keyboard and voice) from notification.
 
@@ -124,31 +127,32 @@ class ShareUrlActivity : Activity() {
         // choice to allow) without leaving the notification.
 
         // Create the RemoteInput.
-        val replyLabel = getString(R.string.cancel)
-        val remoteInput = RemoteInput.Builder(BigPictureSocialIntentService.EXTRA_COMMENT)
-            .setLabel(replyLabel) // List of quick response choices for any wearables paired with the phone
-            .setChoices(bigPictureStyleSocialAppData.possiblePostResponses)
-            .build()
+        val cancelLabel = getString(R.string.cancel)
+//        val remoteInput = RemoteInput.Builder(CancelTrackIntentService.EXTRA_CANCEL)
+//            .setLabel(cancelLabel) // List of quick response choices for any wearables paired with the phone
+//            .setChoices(appData.possiblePostResponses)
+//            .build()
 
         // Pending intent =
         //      API <24 (M and below): activity so the lock-screen presents the auth challenge
         //      API 24+ (N and above): this should be a Service or BroadcastReceiver
-        val replyActionPendingIntent: PendingIntent
+        val cancelActionPendingIntent: PendingIntent
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            val intent = Intent(this, BigPictureSocialIntentService::class.java)
-            intent.action = BigPictureSocialIntentService.ACTION_COMMENT
-            replyActionPendingIntent = PendingIntent.getService(this, 0, intent, 0)
+            val intent = Intent(this, CancelTrackIntentService::class.java)
+            intent.action = CancelTrackIntentService.ACTION_CANCEL
+            intent.putExtra(CancelTrackIntentService.EXTRA_NOTIF_ID, NOTIFICATION_ID)
+            cancelActionPendingIntent = PendingIntent.getService(this, 0, intent, 0)
         } else {
-            replyActionPendingIntent = mainPendingIntent
+            cancelActionPendingIntent = mainPendingIntent
         }
 
-        val replyAction: NotificationCompat.Action = NotificationCompat.Action.Builder(
+        val cancelAction: NotificationCompat.Action = NotificationCompat.Action.Builder(
             R.drawable.ic_cancel_18dp,
-            replyLabel,
-            replyActionPendingIntent
+            cancelLabel,
+            cancelActionPendingIntent
         )
-            .addRemoteInput(remoteInput)
+//            .addRemoteInput(remoteInput)
             .build()
 
         // 5. Build and issue the notification.
@@ -164,8 +168,8 @@ class ShareUrlActivity : Activity() {
 
         notificationCompatBuilder // BIG_PICTURE_STYLE sets title and content for API 16 (4.1 and after).
 //            .setStyle(bigPictureStyle) // Title for API <16 (4.0 and below) devices.
-            .setContentTitle(bigPictureStyleSocialAppData.contentTitle) // Content for API <24 (7.0 and below) devices.
-            .setContentText(bigPictureStyleSocialAppData.contentText)
+            .setContentTitle(appData.title) // Content for API <24 (7.0 and below) devices.
+//            .setContentText(appData.contentText)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
 //            .setLargeIcon(
 //                BitmapFactory.decodeResource(
@@ -180,7 +184,8 @@ class ShareUrlActivity : Activity() {
                     applicationContext,
                     R.color.colorPrimary
                 )
-            ) // SIDE NOTE: Auto-bundling is enabled for 4 or more notifications on API 24+ (N+)
+            )
+            // SIDE NOTE: Auto-bundling is enabled for 4 or more notifications on API 24+ (N+)
             // devices and all Wear devices. If you have more than one notification and
             // you prefer a different summary notification, set a group key and create a
             // summary notification via
@@ -188,18 +193,23 @@ class ShareUrlActivity : Activity() {
             // .setGroup(GROUP_KEY_YOUR_NAME_HERE)
             .setSubText(1.toString())
             .setProgress(100, 0, true)
-            .addAction(replyAction)
+            .addAction(cancelAction)
             .setCategory(Notification.CATEGORY_SOCIAL) // Sets priority for 25 and below. For 26 and above, 'priority' is deprecated for
             // 'importance' which is set in the NotificationChannel. The integers representing
             // 'priority' are different from 'importance', so make sure you don't mix them.
-            .setPriority(bigPictureStyleSocialAppData.priority) // Sets lock-screen visibility for 25 and below. For 26 and above, lock screen
+//            .setPriority(appData.priority) // Sets lock-screen visibility for 25 and below. For 26 and above, lock screen
             // visibility is set in the NotificationChannel.
-            .setVisibility(bigPictureStyleSocialAppData.channelLockscreenVisibility)
+//            .setVisibility(appData.channelLockscreenVisibility)
 
-        val notification: Notification = notificationCompatBuilder.build()
+        val notification = notificationCompatBuilder.build()
 
         mNotificationManagerCompat.notify(NOTIFICATION_ID, notification)
     }
+
+    private fun getTrackData() = TrackAppData(
+        id= "HQmmM_qwG4k", title = "Led Zeppelin - Whole Lotta Love (Official Music Video)", Duration.parse("PT4M49S"),
+        Thumbnail("https://i.ytimg.com/vi/HQmmM_qwG4k/mqdefault.jpg", 320, 180)
+    )
 
 //    private fun alertNotifDisabled(url: String?) {
 //        Log.i("Service", "Notif disabled")
