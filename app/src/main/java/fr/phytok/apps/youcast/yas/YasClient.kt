@@ -1,4 +1,9 @@
 package fr.phytok.apps.youcast.yas
 
-class YasClient {
+import retrofit2.http.GET
+import retrofit2.http.Path
+
+interface YasApiClient {
+    @GET("get/{videoId}")
+    fun metaById(@Path("videoId") videoId: String) : Search
 }

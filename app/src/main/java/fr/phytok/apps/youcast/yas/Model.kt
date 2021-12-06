@@ -12,7 +12,7 @@ data class VideoMeta(
 
 data class VideoSnippet(
     // format "2008-04-20T22:17:15Z"
-    var published: String = "",
+    var publishedAt: String = "",
     var title: String = "",
     var thumbnails: Map<String, Thumbnail>? = null
 )
