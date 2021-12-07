@@ -11,6 +11,8 @@ import fr.phytok.apps.youcast.activities.ShareUrlActivity
 
 open class DownloadService : Service() {
 
+    val TAG = "DownloadService"
+
     lateinit var mNotificationManagerCompat : NotificationManagerCompat
     private var serviceLooper: Looper? = null
     private var serviceHandler: ServiceHandler? = null
@@ -27,6 +29,7 @@ open class DownloadService : Service() {
                 alertNotifDisabled(url)
             }
 
+            Log.i(TAG, "Do long stuff")
             // Normally we would do some work here, like download a file.
             // For our sample, we just sleep for 5 seconds.
             try {

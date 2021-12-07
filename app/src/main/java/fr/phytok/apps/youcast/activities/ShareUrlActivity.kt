@@ -7,23 +7,34 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import androidx.annotation.WorkerThread
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.TaskStackBuilder
 import androidx.core.content.ContextCompat
+import dagger.hilt.android.AndroidEntryPoint
 import fr.phytok.apps.youcast.GlobalNotificationBuilder
 import fr.phytok.apps.youcast.NotificationUtil
 import fr.phytok.apps.youcast.R
 import fr.phytok.apps.youcast.handlers.CancelTrackIntentService
+import fr.phytok.apps.youcast.handlers.DownloadService
 import fr.phytok.apps.youcast.model.TrackAppData
+import fr.phytok.apps.youcast.model.toTrack
+import fr.phytok.apps.youcast.yas.RemoteTrackRepository
 import fr.phytok.apps.youcast.yas.Thumbnail
 import java.time.Duration
+import javax.inject.Inject
 
 
-class ShareUrlActivity : Activity() {
+@AndroidEntryPoint
+class ShareUrlActivity : AppCompatActivity() {
 
     private val TAG = "LoadUrlActivity"
     lateinit var mNotificationManagerCompat : NotificationManagerCompat
+
+    @Inject
+    lateinit var remoteTrackRepository: RemoteTrackRepository
 
     // TODO: Should pair Notif ID with track
     val NOTIFICATION_ID = 888
@@ -34,7 +45,7 @@ class ShareUrlActivity : Activity() {
 
         mNotificationManagerCompat = NotificationManagerCompat.from(applicationContext)
 
-        notifyUrlReceived()
+        loadTrackData()
 
         // Tell service to handle url
 //        intent?.clipData
@@ -51,7 +62,7 @@ class ShareUrlActivity : Activity() {
 //        finish()
     }
 
-    private fun notifyUrlReceived() {
+    private fun showNotification(appData: TrackAppData) {
 
         Log.d(TAG, "In notifyUrlReceived")
 
@@ -62,10 +73,6 @@ class ShareUrlActivity : Activity() {
         //      3. Set up main Intent for notification
         //      4. Set up RemoteInput, so users can input (keyboard and voice) from notification
         //      5. Build and issue the notification
-
-
-        // 0. Get your data (everything unique per Notification).
-        val appData = getTrackData()
 
         // 1. Create/Retrieve Notification Channel for O and beyond devices (26+).
         val notificationChannelId = NotificationUtil.createNotificationChannel(this)
@@ -206,39 +213,26 @@ class ShareUrlActivity : Activity() {
         mNotificationManagerCompat.notify(NOTIFICATION_ID, notification)
     }
 
-    private fun getTrackData() = TrackAppData(
-        id= "HQmmM_qwG4k", title = "Led Zeppelin - Whole Lotta Love (Official Music Video)", Duration.parse("PT4M49S"),
-        Thumbnail("https://i.ytimg.com/vi/HQmmM_qwG4k/mqdefault.jpg", 320, 180)
-    )
+    private fun loadTrackData() =
+        intent?.clipData
+                ?.takeIf { it.itemCount > 0 }
+            ?.getItemAt(0)?.text?.split("/")?.last()
+            ?.let { videoId ->
+                remoteTrackRepository.getMetadata(videoId) { search ->
+                    search.toTrack()?.let { track ->
+                        launchDownload(track)
+                        showNotification(track)
+                    }
+                }
+            }
 
-//    private fun alertNotifDisabled(url: String?) {
-//        Log.i("Service", "Notif disabled")
-//        val snackbar: Snackbar = Snackbar
-//            .make(applicationContext,
-//                "You need to enable notifications for this app",
-//                Snackbar.LENGTH_LONG
-//            )
-//            .setAction("ENABLE", object : OnClickListener() {
-//                fun onClick(view: View?) {
-//                    // Links to this app's notification settings
-//                    openNotificationSettingsForApp()
-//                }
-//            })
-//        snackbar.show()
-//    }
-//
-//
-//    private open fun openNotificationSettingsForApp() {
-//        // Links to this app's notification settings.
-//        val intent = Intent()
-//        intent.action = "android.settings.APP_NOTIFICATION_SETTINGS"
-//        intent.putExtra("app_package", packageName)
-//        intent.putExtra("app_uid", applicationInfo.uid)
-//
-//        // for Android 8 and above
-//        intent.putExtra("android.provider.extra.APP_PACKAGE", packageName)
-//        startActivity(intent)
-//    }
+    private fun launchDownload(track: TrackAppData) {
+        Log.i(TAG, "received intent for track ${track.id}")
+        Intent(this, DownloadService::class.java).also { newIntent ->
+            newIntent.putExtra(EXTRA_KEY, track.id)
+            startService(newIntent)
+        }
+    }
 
     companion object {
         const val EXTRA_KEY = "KEY"
