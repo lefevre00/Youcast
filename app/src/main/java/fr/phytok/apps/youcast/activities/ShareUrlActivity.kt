@@ -1,13 +1,11 @@
 package fr.phytok.apps.youcast.activities
 
-import android.app.Activity
 import android.app.Notification
 import android.app.PendingIntent
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import androidx.annotation.WorkerThread
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -22,8 +20,6 @@ import fr.phytok.apps.youcast.handlers.DownloadService
 import fr.phytok.apps.youcast.model.TrackAppData
 import fr.phytok.apps.youcast.model.toTrack
 import fr.phytok.apps.youcast.yas.RemoteTrackRepository
-import fr.phytok.apps.youcast.yas.Thumbnail
-import java.time.Duration
 import javax.inject.Inject
 
 

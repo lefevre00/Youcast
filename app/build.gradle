@@ -20,7 +20,11 @@ android {
     }
 
     buildTypes {
+        debug {
+            resValue("string", "server_url", "http://192.168.1.49:8000/")
+        }
         release {
+            resValue("string", "server_url", "http://bidon.fr:8000/")
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
@@ -42,11 +46,12 @@ dependencies {
     implementation 'com.google.android.material:material:1.3.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-jackson:2.9.0'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.0'
+    implementation 'com.fasterxml.jackson.module:jackson-module-kotlin:2.13.0'
     implementation "com.google.dagger:hilt-android:2.38.1"
     kapt "com.google.dagger:hilt-compiler:2.38.1"
 
-    testImplementation 'com.fasterxml.jackson.core:jackson-databind:2.13.0'
-    testImplementation 'com.fasterxml.jackson.module:jackson-module-kotlin:2.13.0'
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
