@@ -1,4 +1,4 @@
-package fr.phytok.apps.youcast.yas
+package fr.phytok.apps.cachecast.yas
 
 import retrofit2.Call
 import retrofit2.http.GET

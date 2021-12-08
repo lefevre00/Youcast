@@ -1,7 +1,7 @@
-package fr.phytok.apps.youcast.model
+package fr.phytok.apps.cachecast.model
 
-import fr.phytok.apps.youcast.yas.Search
-import fr.phytok.apps.youcast.yas.Thumbnail
+import fr.phytok.apps.cachecast.yas.Search
+import fr.phytok.apps.cachecast.yas.Thumbnail
 import java.time.Duration
 
 data class TrackAppData(

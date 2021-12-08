@@ -1,4 +1,4 @@
-package fr.phytok.apps.youcast.handlers
+package fr.phytok.apps.cachecast.handlers
 
 import android.app.Service
 import android.content.Intent
@@ -11,8 +11,9 @@ class CancelTrackIntentService : Service() {
     private lateinit var mNotificationManagerCompat: NotificationManagerCompat
 
     companion object {
-        val ACTION_CANCEL  = "fr.phytok.apps.youcast.action.cancel"
-        val EXTRA_NOTIF_ID = "fr.phytok.apps.youcast.extra.notification.id"
+        private val prefix = "fr.phytok.apps.cachecast"
+        val ACTION_CANCEL  = "$prefix.action.cancel"
+        val EXTRA_NOTIF_ID = "$prefix.extra.notification.id"
     }
 
     override fun onCreate() {

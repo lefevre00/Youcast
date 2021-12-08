@@ -1,4 +1,4 @@
-package fr.phytok.apps.youcast.yas
+package fr.phytok.apps.cachecast.yas
 
 data class Search(
     val items: List<VideoMeta>

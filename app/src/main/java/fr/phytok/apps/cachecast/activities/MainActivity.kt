@@ -1,8 +1,8 @@
-package fr.phytok.apps.youcast.activities
+package fr.phytok.apps.cachecast.activities
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import fr.phytok.apps.youcast.R
+import fr.phytok.apps.cachecast.R
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -1,4 +1,4 @@
-package fr.phytok.apps.youcast.activities
+package fr.phytok.apps.cachecast.activities
 
 import android.app.Notification
 import android.app.PendingIntent
@@ -11,15 +11,16 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.TaskStackBuilder
 import androidx.core.content.ContextCompat
+import com.squareup.picasso.Picasso
 import dagger.hilt.android.AndroidEntryPoint
-import fr.phytok.apps.youcast.GlobalNotificationBuilder
-import fr.phytok.apps.youcast.NotificationUtil
-import fr.phytok.apps.youcast.R
-import fr.phytok.apps.youcast.handlers.CancelTrackIntentService
-import fr.phytok.apps.youcast.handlers.DownloadService
-import fr.phytok.apps.youcast.model.TrackAppData
-import fr.phytok.apps.youcast.model.toTrack
-import fr.phytok.apps.youcast.yas.RemoteTrackRepository
+import fr.phytok.apps.cachecast.GlobalNotificationBuilder
+import fr.phytok.apps.cachecast.NotificationUtil
+import fr.phytok.apps.cachecast.R
+import fr.phytok.apps.cachecast.handlers.CancelTrackIntentService
+import fr.phytok.apps.cachecast.handlers.DownloadService
+import fr.phytok.apps.cachecast.model.TrackAppData
+import fr.phytok.apps.cachecast.model.toTrack
+import fr.phytok.apps.cachecast.yas.RemoteTrackRepository
 import javax.inject.Inject
 
 
@@ -44,7 +45,7 @@ class ShareUrlActivity : AppCompatActivity() {
         loadTrackData()
     }
 
-    private fun showNotification(appData: TrackAppData) {
+    private fun showNotification(track: TrackAppData) {
 
         Log.d(TAG, "In notifyUrlReceived")
 
@@ -157,15 +158,16 @@ class ShareUrlActivity : AppCompatActivity() {
 
         notificationCompatBuilder // BIG_PICTURE_STYLE sets title and content for API 16 (4.1 and after).
 //            .setStyle(bigPictureStyle) // Title for API <16 (4.0 and below) devices.
-            .setContentTitle(appData.title) // Content for API <24 (7.0 and below) devices.
-//            .setContentText(appData.contentText)
+            .setContentTitle(track.title) // Content for API <24 (7.0 and below) devices.
+            .setContentText(getString(R.string.downloading))
             .setSmallIcon(R.drawable.ic_launcher_foreground)
-//            .setLargeIcon(
-//                BitmapFactory.decodeResource(
-//                    resources,
-//                    R.drawable.ic_person_black_48dp
-//                )
-//            )
+            .setLargeIcon(
+                Picasso.get()
+                    .load(track.picture?.url)
+                    .resize(60, 60)
+                    .centerCrop()
+                    .get()
+            )
             .setContentIntent(mainPendingIntent)
             .setDefaults(NotificationCompat.DEFAULT_ALL) // Set primary color (important for Wear 2.0 Notifications).
             .setColor(

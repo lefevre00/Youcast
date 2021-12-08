@@ -7,6 +7,6 @@
         <processorPath useClasspath="false" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel target="1.8" />
+    <bytecodeTargetLevel target="15" />
   </component>
 </project>

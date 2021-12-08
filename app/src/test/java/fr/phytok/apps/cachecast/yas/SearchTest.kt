@@ -1,6 +1,6 @@
-package fr.phytok.apps.youcast.yas
+package fr.phytok.apps.cachecast.yas
 
-import fr.phytok.apps.youcast.util.createMapper
+import fr.phytok.apps.cachecast.util.createMapper
 import org.junit.Assert
 import org.junit.Test
 

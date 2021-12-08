@@ -1,4 +1,4 @@
-package fr.phytok.apps.youcast
+package fr.phytok.apps.cachecast
 
 import dagger.Module
 import dagger.Provides

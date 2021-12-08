@@ -1,7 +1,7 @@
-package fr.phytok.apps.youcast
+package fr.phytok.apps.cachecast
 
 import android.app.Application
 import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp
-class YouCastApplication : Application() {}
+class CacheCastApplication : Application() {}

@@ -1,4 +1,4 @@
-package fr.phytok.apps.youcast
+package fr.phytok.apps.cachecast
 
 import org.junit.Test
 

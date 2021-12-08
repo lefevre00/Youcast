@@ -1,4 +1,4 @@
-package fr.phytok.apps.youcast.handlers
+package fr.phytok.apps.cachecast.handlers
 
 import android.app.Service
 import android.content.Intent
@@ -6,7 +6,7 @@ import android.os.*
 import android.util.Log
 import android.widget.Toast
 import androidx.core.app.NotificationManagerCompat
-import fr.phytok.apps.youcast.activities.ShareUrlActivity
+import fr.phytok.apps.cachecast.activities.ShareUrlActivity
 
 
 open class DownloadService : Service() {

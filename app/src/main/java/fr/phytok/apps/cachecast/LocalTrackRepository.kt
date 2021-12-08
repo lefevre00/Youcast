@@ -1,4 +1,4 @@
-package fr.phytok.apps.youcast
+package fr.phytok.apps.cachecast
 
 import android.content.ContentUris
 import android.content.ContentValues
@@ -6,9 +6,8 @@ import android.content.Context
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
-import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.qualifiers.ApplicationContext
-import fr.phytok.apps.youcast.yas.VideoSnippet
+import fr.phytok.apps.cachecast.yas.VideoSnippet
 import java.io.FileOutputStream
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject

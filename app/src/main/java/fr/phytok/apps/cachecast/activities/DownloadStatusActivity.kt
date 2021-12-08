@@ -1,4 +1,4 @@
-package fr.phytok.apps.youcast.activities
+package fr.phytok.apps.cachecast.activities
 
 import androidx.appcompat.app.AppCompatActivity
 

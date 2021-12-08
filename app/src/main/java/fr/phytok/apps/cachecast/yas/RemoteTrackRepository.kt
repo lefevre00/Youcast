@@ -1,10 +1,10 @@
-package fr.phytok.apps.youcast.yas
+package fr.phytok.apps.cachecast.yas
 
 import android.content.Context
 import android.util.Log
 import dagger.hilt.android.qualifiers.ApplicationContext
-import fr.phytok.apps.youcast.R
-import fr.phytok.apps.youcast.util.createMapper
+import fr.phytok.apps.cachecast.R
+import fr.phytok.apps.cachecast.util.createMapper
 import retrofit2.Retrofit
 import retrofit2.converter.jackson.JacksonConverterFactory
 import java.util.concurrent.Executor
