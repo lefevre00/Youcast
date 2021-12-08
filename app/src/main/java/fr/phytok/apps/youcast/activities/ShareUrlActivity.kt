@@ -42,20 +42,6 @@ class ShareUrlActivity : AppCompatActivity() {
         mNotificationManagerCompat = NotificationManagerCompat.from(applicationContext)
 
         loadTrackData()
-
-        // Tell service to handle url
-//        intent?.clipData
-//            ?.takeIf { it.itemCount>0 }
-//            ?.let {
-//                Log.i("BIDON", "LoadEpisodeActivity received intent ${it.getItemAt(0)?.text}")
-//                Intent(this, DownloadService::class.java).also { newIntent ->
-//                    newIntent.putExtra(EXTRA_KEY, it.getItemAt(0)?.text)
-//                    startService(newIntent)
-//                }
-//        }
-//
-//        // Close activity
-//        finish()
     }
 
     private fun showNotification(appData: TrackAppData) {
@@ -218,6 +204,8 @@ class ShareUrlActivity : AppCompatActivity() {
                     search.toTrack()?.let { track ->
                         launchDownload(track)
                         showNotification(track)
+                        // Close activity
+                        finish()
                     }
                 }
             }
