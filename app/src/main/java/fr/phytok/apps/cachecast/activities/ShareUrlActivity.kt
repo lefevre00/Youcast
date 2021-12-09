@@ -6,7 +6,7 @@ import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import dagger.hilt.android.AndroidEntryPoint
 import fr.phytok.apps.cachecast.R
-import fr.phytok.apps.cachecast.handlers.DownloadService
+import fr.phytok.apps.cachecast.services.DownloadService
 import fr.phytok.apps.cachecast.model.TrackAppData
 import fr.phytok.apps.cachecast.model.toTrack
 import fr.phytok.apps.cachecast.yas.RemoteTrackRepository

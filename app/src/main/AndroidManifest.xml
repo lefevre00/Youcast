@@ -36,12 +36,12 @@
         </activity>
 
         <service
-            android:name="fr.phytok.apps.cachecast.handlers.DownloadService"
+            android:name="fr.phytok.apps.cachecast.services.DownloadService"
             android:exported="false">
         </service>
 
         <service
-            android:name="fr.phytok.apps.cachecast.handlers.CancelTrackIntentService"
+            android:name="fr.phytok.apps.cachecast.services.CancelTrackIntentService"
             android:exported="false">
         </service>
 

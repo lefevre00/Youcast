@@ -1,4 +1,4 @@
-package fr.phytok.apps.cachecast.handlers
+package fr.phytok.apps.cachecast.services
 
 import android.app.Service
 import android.content.Intent

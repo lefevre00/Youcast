@@ -15,7 +15,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import fr.phytok.apps.cachecast.GlobalNotificationBuilder
 import fr.phytok.apps.cachecast.NotificationUtil
 import fr.phytok.apps.cachecast.R
-import fr.phytok.apps.cachecast.handlers.CancelTrackIntentService
+import fr.phytok.apps.cachecast.services.CancelTrackIntentService
 import fr.phytok.apps.cachecast.model.TrackAppData
 import javax.inject.Inject
 
