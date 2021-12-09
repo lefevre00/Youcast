@@ -21,10 +21,10 @@ android {
 
     buildTypes {
         debug {
-            resValue("string", "server_url", "http://192.168.1.49:8000/")
+            buildConfigField("String", "SERVER", "\"http://bidon.fr:8000/\"")
         }
         release {
-            resValue("string", "server_url", "http://bidon.fr:8000/")
+            buildConfigField("String", "SERVER", "http://bidonprod.fr:8000/")
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }

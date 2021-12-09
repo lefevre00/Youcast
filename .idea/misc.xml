@@ -6,6 +6,7 @@
         <entry key="app/src/main/res/drawable/ic_baseline_surround_sound_24.xml" value="0.20833333333333334" />
         <entry key="app/src/main/res/drawable/ic_cancel_18.xml" value="0.20833333333333334" />
         <entry key="app/src/main/res/drawable/ic_launcher_foreground.xml" value="0.14074074074074075" />
+        <entry key="app/src/main/res/layout/activity_main.xml" value="0.25" />
       </map>
     </option>
   </component>

@@ -3,6 +3,7 @@ package fr.phytok.apps.cachecast.yas
 import android.content.Context
 import android.util.Log
 import dagger.hilt.android.qualifiers.ApplicationContext
+import fr.phytok.apps.cachecast.BuildConfig
 import fr.phytok.apps.cachecast.R
 import fr.phytok.apps.cachecast.util.createMapper
 import retrofit2.Retrofit
@@ -18,7 +19,7 @@ class RemoteTrackRepository @Inject constructor(
     val TAG = "RemoteTrackRepository"
 
     var yasClient: YasApiClient = Retrofit.Builder()
-        .baseUrl(context.getString(R.string.server_url))
+        .baseUrl(BuildConfig.SERVER)
         .addConverterFactory(JacksonConverterFactory.create(createMapper()))
         .build().create(YasApiClient::class.java)
 
