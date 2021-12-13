@@ -9,6 +9,7 @@ import fr.phytok.apps.cachecast.R
 import fr.phytok.apps.cachecast.services.DownloadService
 import fr.phytok.apps.cachecast.model.TrackAppData
 import fr.phytok.apps.cachecast.model.toTrack
+import fr.phytok.apps.cachecast.util.NotificationSender
 import fr.phytok.apps.cachecast.yas.RemoteTrackRepository
 import javax.inject.Inject
 
@@ -23,12 +24,16 @@ class ShareUrlActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_load_url)
+        // Dont reference layout to leave quickly
+//        setContentView(R.layout.activity_load_url)
 
         loadTrackData()
     }
 
     private fun loadTrackData() =
+        // TODO use
+//          Intent.ACTION_SEND &&
+//          Intent.EXTRA_TEXT
         intent?.clipData
                 ?.takeIf { it.itemCount > 0 }
             ?.getItemAt(0)?.text?.split("/")?.last()

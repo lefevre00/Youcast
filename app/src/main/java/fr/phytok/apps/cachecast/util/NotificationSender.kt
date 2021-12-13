@@ -1,4 +1,4 @@
-package fr.phytok.apps.cachecast.activities
+package fr.phytok.apps.cachecast.util
 
 import android.app.Notification
 import android.app.PendingIntent
@@ -18,6 +18,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import fr.phytok.apps.cachecast.GlobalNotificationBuilder
 import fr.phytok.apps.cachecast.NotificationUtil
 import fr.phytok.apps.cachecast.R
+import fr.phytok.apps.cachecast.activities.DownloadStatusActivity
 import fr.phytok.apps.cachecast.model.TrackAppData
 import fr.phytok.apps.cachecast.services.DownloadService
 import javax.inject.Inject
@@ -114,7 +115,7 @@ class NotificationSender @Inject constructor(
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             val intent = Intent(context, DownloadService::class.java)
             intent.action = DownloadService.ACTION_CANCEL
-            intent.putExtra(DownloadService.EXTRA_NOTIF_ID, Companion.NOTIFICATION_ID)
+            intent.putExtra(DownloadService.EXTRA_NOTIF_ID, NOTIFICATION_ID)
             cancelActionPendingIntent = PendingIntent.getService(context, 0, intent, 0)
         } else {
             cancelActionPendingIntent = mainPendingIntent
