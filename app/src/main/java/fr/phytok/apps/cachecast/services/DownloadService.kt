@@ -11,7 +11,12 @@ import fr.phytok.apps.cachecast.activities.ShareUrlActivity
 
 open class DownloadService : Service() {
 
-    val TAG = "DownloadService"
+    companion object {
+        val TAG = "DownloadService"
+        private val prefix = "fr.phytok.apps.cachecast"
+        val ACTION_CANCEL  = "$prefix.action.cancel"
+        val EXTRA_NOTIF_ID = "$prefix.extra.notification.id"
+    }
 
     lateinit var mNotificationManagerCompat : NotificationManagerCompat
     private var serviceLooper: Looper? = null
@@ -46,18 +51,18 @@ open class DownloadService : Service() {
     }
 
     private fun alertNotifDisabled(url: String?) {
-        Log.i("Service", "Notif disabled")
+        Log.i(TAG,"Notif disabled")
     }
 
     private fun showNotif(url: String?) {
-        Log.i("Service", "Notif enabled")
+        Log.i(TAG,"Notif enabled")
         Toast.makeText(applicationContext, "Notif $url", Toast.LENGTH_SHORT).show()
     }
 
 
     override fun onCreate() {
 
-        mNotificationManagerCompat = NotificationManagerCompat.from(applicationContext);
+        mNotificationManagerCompat = NotificationManagerCompat.from(applicationContext)
 
         // Start up the thread running the service.  Note that we create a
         // separate thread because the service normally runs in the process's
@@ -72,8 +77,15 @@ open class DownloadService : Service() {
         }
     }
 
-    override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
+    override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int =
+        when(intent?.action) {
+            null -> START_NOT_STICKY
+            ACTION_CANCEL -> onCancel(intent)
+            Intent.ACTION_SEND -> onUrlShared(intent, startId)
+            else -> START_NOT_STICKY
+        }
 
+    private fun onUrlShared(intent: Intent, startId: Int): Int {
         Toast.makeText(this, "Service notified", Toast.LENGTH_SHORT).show()
 
         // For each start request, send a message to start a job and deliver the
@@ -88,6 +100,20 @@ open class DownloadService : Service() {
 
         // If we get killed, after returning from here, restart
         return START_STICKY
+    }
+
+    private fun onCancel(intent: Intent): Int {
+        Log.i(TAG, "Received command")
+        intent
+            .getIntExtra(EXTRA_NOTIF_ID, 0)
+            .takeIf { it > 0 }
+            ?.let {
+                Log.i(TAG, "ASk to stop notif $it")
+                NotificationManagerCompat.from(this).cancel(it)
+            } ?: run {
+            Log.i(TAG, "No notif to stop")
+        }
+        return START_NOT_STICKY
     }
 
     override fun onBind(intent: Intent): IBinder? {

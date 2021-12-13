@@ -40,11 +40,6 @@
             android:exported="false">
         </service>
 
-        <service
-            android:name="fr.phytok.apps.cachecast.services.CancelTrackIntentService"
-            android:exported="false">
-        </service>
-
     </application>
 
     <uses-permission android:name="android.permission.INTERNET"/>

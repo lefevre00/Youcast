@@ -15,8 +15,8 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import fr.phytok.apps.cachecast.GlobalNotificationBuilder
 import fr.phytok.apps.cachecast.NotificationUtil
 import fr.phytok.apps.cachecast.R
-import fr.phytok.apps.cachecast.services.CancelTrackIntentService
 import fr.phytok.apps.cachecast.model.TrackAppData
+import fr.phytok.apps.cachecast.services.DownloadService
 import javax.inject.Inject
 
 class NotificationSender @Inject constructor(
@@ -87,7 +87,7 @@ class NotificationSender @Inject constructor(
             mainIntent,
             PendingIntent.FLAG_UPDATE_CURRENT
         )
-        mainIntent.putExtra(CancelTrackIntentService.EXTRA_NOTIF_ID, Companion.NOTIFICATION_ID)
+        mainIntent.putExtra(DownloadService.EXTRA_NOTIF_ID, Companion.NOTIFICATION_ID)
 
         // 4. Set up RemoteInput, so users can input (keyboard and voice) from notification.
 
@@ -109,9 +109,9 @@ class NotificationSender @Inject constructor(
         val cancelActionPendingIntent: PendingIntent
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            val intent = Intent(context, CancelTrackIntentService::class.java)
-            intent.action = CancelTrackIntentService.ACTION_CANCEL
-            intent.putExtra(CancelTrackIntentService.EXTRA_NOTIF_ID, Companion.NOTIFICATION_ID)
+            val intent = Intent(context, DownloadService::class.java)
+            intent.action = DownloadService.ACTION_CANCEL
+            intent.putExtra(DownloadService.EXTRA_NOTIF_ID, Companion.NOTIFICATION_ID)
             cancelActionPendingIntent = PendingIntent.getService(context, 0, intent, 0)
         } else {
             cancelActionPendingIntent = mainPendingIntent
