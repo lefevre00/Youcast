@@ -21,7 +21,7 @@ class ShareUrlActivity : AppCompatActivity() {
     @Inject
     lateinit var remoteTrackRepository: RemoteTrackRepository
     @Inject
-    lateinit var notificationSender: NotifSender
+    lateinit var notificationSender: NotificationSender
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

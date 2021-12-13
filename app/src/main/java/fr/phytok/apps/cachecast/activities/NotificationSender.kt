@@ -19,7 +19,7 @@ import fr.phytok.apps.cachecast.services.CancelTrackIntentService
 import fr.phytok.apps.cachecast.model.TrackAppData
 import javax.inject.Inject
 
-class NotifSender @Inject constructor(
+class NotificationSender @Inject constructor(
     @ApplicationContext private val context: Context
 ){
 
@@ -27,7 +27,7 @@ class NotifSender @Inject constructor(
 
     fun showNotification(track: TrackAppData) {
 
-        Log.d(Companion.TAG, "In notifyUrlReceived")
+        Log.d(TAG, "In notifyUrlReceived")
 
         // Main steps for building a BIG_PICTURE_STYLE notification:
         //      0. Get your data
@@ -165,7 +165,8 @@ class NotifSender @Inject constructor(
             .setSubText(1.toString())
             .setProgress(100, 0, true)
             .addAction(cancelAction)
-            .setCategory(Notification.CATEGORY_SOCIAL) // Sets priority for 25 and below. For 26 and above, 'priority' is deprecated for
+            .setCategory(Notification.CATEGORY_SOCIAL)
+        // Sets priority for 25 and below. For 26 and above, 'priority' is deprecated for
         // 'importance' which is set in the NotificationChannel. The integers representing
         // 'priority' are different from 'importance', so make sure you don't mix them.
 //            .setPriority(appData.priority) // Sets lock-screen visibility for 25 and below. For 26 and above, lock screen
