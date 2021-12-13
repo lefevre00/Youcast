@@ -12,7 +12,6 @@ import java.util.concurrent.Executor
 import javax.inject.Inject
 
 class RemoteTrackRepository @Inject constructor(
-//    private val executor: Executor,
     private val yasClient: YasApiClient
 ) {
 
