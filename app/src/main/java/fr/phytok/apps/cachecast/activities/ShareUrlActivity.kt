@@ -16,8 +16,6 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class ShareUrlActivity : AppCompatActivity() {
 
-    private val TAG = "LoadUrlActivity"
-
     @Inject
     lateinit var remoteTrackRepository: RemoteTrackRepository
     @Inject
@@ -55,5 +53,6 @@ class ShareUrlActivity : AppCompatActivity() {
 
     companion object {
         const val EXTRA_KEY = "KEY"
+        private const val TAG = "ShareUrlActivity"
     }
 }

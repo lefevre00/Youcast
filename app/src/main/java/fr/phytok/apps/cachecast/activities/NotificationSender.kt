@@ -4,6 +4,8 @@ import android.app.Notification
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.drawable.Drawable
 import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationCompat
@@ -11,6 +13,7 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.TaskStackBuilder
 import androidx.core.content.ContextCompat
 import com.squareup.picasso.Picasso
+import com.squareup.picasso.Target
 import dagger.hilt.android.qualifiers.ApplicationContext
 import fr.phytok.apps.cachecast.GlobalNotificationBuilder
 import fr.phytok.apps.cachecast.NotificationUtil
@@ -87,7 +90,7 @@ class NotificationSender @Inject constructor(
             mainIntent,
             PendingIntent.FLAG_UPDATE_CURRENT
         )
-        mainIntent.putExtra(DownloadService.EXTRA_NOTIF_ID, Companion.NOTIFICATION_ID)
+        mainIntent.putExtra(DownloadService.EXTRA_NOTIF_ID, NOTIFICATION_ID)
 
         // 4. Set up RemoteInput, so users can input (keyboard and voice) from notification.
 
@@ -141,13 +144,6 @@ class NotificationSender @Inject constructor(
             .setContentTitle(track.title) // Content for API <24 (7.0 and below) devices.
 //            .setContentText(getString(R.string.downloading))
             .setSmallIcon(R.drawable.ic_launcher_foreground)
-            .setLargeIcon(
-                Picasso.get()
-                    .load(track.picture?.url)
-                    .resize(60, 60)
-                    .centerCrop()
-                    .get()
-            )
             .setContentIntent(mainPendingIntent)
             .setDefaults(NotificationCompat.DEFAULT_ALL) // Set primary color (important for Wear 2.0 Notifications).
             .setColor(
@@ -173,9 +169,35 @@ class NotificationSender @Inject constructor(
         // visibility is set in the NotificationChannel.
 //            .setVisibility(appData.channelLockscreenVisibility)
 
+        track.picture?.url?.let {
+            setLargeIcon(it, notificationCompatBuilder)
+        }
+
         val notification = notificationCompatBuilder.build()
 
-        mNotificationManagerCompat.notify(Companion.NOTIFICATION_ID, notification)
+        mNotificationManagerCompat.notify(NOTIFICATION_ID, notification)
+    }
+
+    private fun setLargeIcon(url: String, notificationCompatBuilder: NotificationCompat.Builder) {
+        Picasso.get()
+            .load(url)
+            .resize(60, 60)
+            .centerCrop()
+            .into(object : Target {
+                override fun onBitmapLoaded(bitmap: Bitmap?, from: Picasso.LoadedFrom?) {
+                    Log.i(TAG, "After loading thumbnail")
+                    notificationCompatBuilder.setLargeIcon(bitmap)
+                }
+
+                override fun onBitmapFailed(e: Exception?, errorDrawable: Drawable?) {
+                    Log.e(TAG, "failed to load thumbnail")
+                }
+
+                override fun onPrepareLoad(placeHolderDrawable: Drawable?) {
+                    Log.i(TAG, "onPrepareLoad-ing thumbnail for $url")
+                }
+            })
+
     }
 
     companion object {
