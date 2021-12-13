@@ -1,10 +1,7 @@
 package fr.phytok.apps.cachecast.yas
 
-import android.content.Context
 import android.util.Log
-import dagger.hilt.android.qualifiers.ApplicationContext
 import fr.phytok.apps.cachecast.BuildConfig
-import fr.phytok.apps.cachecast.R
 import fr.phytok.apps.cachecast.util.createMapper
 import retrofit2.Retrofit
 import retrofit2.converter.jackson.JacksonConverterFactory
@@ -13,7 +10,6 @@ import javax.inject.Inject
 
 class RemoteTrackRepository @Inject constructor(
     private val executor: Executor,
-    @ApplicationContext private val context: Context
 ) {
 
     val TAG = "RemoteTrackRepository"
