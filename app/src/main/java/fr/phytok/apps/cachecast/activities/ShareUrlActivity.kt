@@ -24,29 +24,29 @@ class ShareUrlActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Dont reference layout to leave quickly
-//        setContentView(R.layout.activity_load_url)
+        // Dont reference layout to leave quickly (no setContentView(layout) )
 
-        loadTrackData()
+        when (intent?.action) {
+            Intent.ACTION_SEND -> loadTrackData()
+            else -> Log.w(TAG, "Unhandled intent action: ${intent?.action}")
+        }
+
+        finish()
     }
 
-    private fun loadTrackData() =
-        // TODO use
-//          Intent.ACTION_SEND &&
-//          Intent.EXTRA_TEXT
-        intent?.clipData
-                ?.takeIf { it.itemCount > 0 }
-            ?.getItemAt(0)?.text?.split("/")?.last()
+    private fun loadTrackData() {
+        intent.getStringExtra(Intent.EXTRA_TEXT)
+            ?.split("/")
+            ?.last()
             ?.let { videoId ->
                 remoteTrackRepository.getMetadata(videoId) { search ->
                     search.toTrack()?.let { track ->
                         launchDownload(track)
                         notificationSender.showNotification(track)
-                        // Close activity
-                        finish()
                     }
                 }
             }
+    }
 
     private fun launchDownload(track: TrackAppData) {
         Log.i(TAG, "received intent for track ${track.id}")
