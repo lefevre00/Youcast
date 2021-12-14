@@ -4,14 +4,16 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityComponent
+import dagger.hilt.android.components.ServiceComponent
+import dagger.hilt.components.SingletonComponent
 import fr.phytok.apps.cachecast.BuildConfig
 import fr.phytok.apps.cachecast.yas.YasApiClient
 import retrofit2.Retrofit
 import retrofit2.converter.jackson.JacksonConverterFactory
 
 @Module
-@InstallIn(ActivityComponent::class)
-class InjectionModule () {
+@InstallIn(SingletonComponent::class)
+object InjectionModule {
 
     @Provides
     fun provideYasApiClient(): YasApiClient = Retrofit.Builder()

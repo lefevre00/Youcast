@@ -186,8 +186,9 @@ class NotificationSender @Inject constructor(
             .centerCrop()
             .into(object : Target {
                 override fun onBitmapLoaded(bitmap: Bitmap?, from: Picasso.LoadedFrom?) {
-                    Log.i(TAG, "After loading thumbnail")
-                    notificationCompatBuilder.setLargeIcon(bitmap)
+                    bitmap?.let {
+                        notificationCompatBuilder.setLargeIcon(it)
+                    }
                 }
 
                 override fun onBitmapFailed(e: Exception?, errorDrawable: Drawable?) {
@@ -195,14 +196,14 @@ class NotificationSender @Inject constructor(
                 }
 
                 override fun onPrepareLoad(placeHolderDrawable: Drawable?) {
-                    Log.i(TAG, "onPrepareLoad-ing thumbnail for $url")
+                    Log.d(TAG, "onPrepareLoad-ing thumbnail for $url")
                 }
             })
 
     }
 
     companion object {
-        private val TAG = "NotifSender"
+        private val TAG = "NotificationSender"
 
         // TODO: Should pair Notif ID with track
         val NOTIFICATION_ID = 888

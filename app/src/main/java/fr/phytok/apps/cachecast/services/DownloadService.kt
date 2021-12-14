@@ -6,21 +6,29 @@ import android.os.*
 import android.util.Log
 import android.widget.Toast
 import androidx.core.app.NotificationManagerCompat
+import dagger.hilt.android.AndroidEntryPoint
 import fr.phytok.apps.cachecast.activities.ShareUrlActivity
+import fr.phytok.apps.cachecast.yas.RemoteTrackRepository
+import fr.phytok.apps.cachecast.yas.YasApiClient
+import javax.inject.Inject
 
-
-open class DownloadService : Service() {
+@AndroidEntryPoint
+class DownloadService : Service() {
 
     companion object {
         val TAG = "DownloadService"
         private val prefix = "fr.phytok.apps.cachecast"
         val ACTION_CANCEL  = "$prefix.action.cancel"
+        val ACTION_LOAD  = "$prefix.action.load"
         val EXTRA_NOTIF_ID = "$prefix.extra.notification.id"
     }
 
     lateinit var mNotificationManagerCompat : NotificationManagerCompat
     private var serviceLooper: Looper? = null
     private var serviceHandler: ServiceHandler? = null
+
+    @Inject
+    lateinit var remoteTrackRepository: RemoteTrackRepository
 
     // Handler that receives messages from the thread
     private inner class ServiceHandler(looper: Looper) : Handler(looper) {
@@ -31,14 +39,18 @@ open class DownloadService : Service() {
             if (mNotificationManagerCompat.areNotificationsEnabled()) {
                 showNotif(url)
             } else {
-                alertNotifDisabled(url)
+                alertNotifDisabled()
             }
 
-            Log.i(TAG, "Do long stuff")
+            Log.d(TAG, "Start loading sound track")
             // Normally we would do some work here, like download a file.
             // For our sample, we just sleep for 5 seconds.
             try {
-                Thread.sleep(5000)
+                url?.split('/')?.last()?.let { trackId ->
+                    remoteTrackRepository.downloadTrack(trackId)
+                    Log.d(TAG, "Loaded sound track")
+                }
+                Thread.sleep(3000)
             } catch (e: InterruptedException) {
                 // Restore interrupt status.
                 Thread.currentThread().interrupt()
@@ -50,17 +62,19 @@ open class DownloadService : Service() {
         }
     }
 
-    private fun alertNotifDisabled(url: String?) {
+    private fun alertNotifDisabled() {
         Log.i(TAG,"Notif disabled")
     }
 
     private fun showNotif(url: String?) {
+        // Launch system notif here
         Log.i(TAG,"Notif enabled")
         Toast.makeText(applicationContext, "Notif $url", Toast.LENGTH_SHORT).show()
     }
 
 
     override fun onCreate() {
+        super.onCreate()
 
         mNotificationManagerCompat = NotificationManagerCompat.from(applicationContext)
 
@@ -78,16 +92,13 @@ open class DownloadService : Service() {
     }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int =
-        when(intent?.action) {
-            null -> START_NOT_STICKY
+        when (intent.action) {
             ACTION_CANCEL -> onCancel(intent)
-            Intent.ACTION_SEND -> onUrlShared(intent, startId)
+            ACTION_LOAD -> onUrlShared(intent, startId)
             else -> START_NOT_STICKY
         }
 
     private fun onUrlShared(intent: Intent, startId: Int): Int {
-        Toast.makeText(this, "Service notified", Toast.LENGTH_SHORT).show()
-
         // For each start request, send a message to start a job and deliver the
         // start ID so we know which request we're stopping when we finish the job
         serviceHandler?.obtainMessage()?.also { msg ->
@@ -121,7 +132,7 @@ open class DownloadService : Service() {
         return null
     }
 
-    override fun onDestroy() {
-        Toast.makeText(this, "service done", Toast.LENGTH_SHORT).show()
-    }
+//    override fun onDestroy() {
+//        Toast.makeText(this, "service done", Toast.LENGTH_SHORT).show()
+//    }
 }
