@@ -8,6 +8,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.io.*
+import java.nio.file.Paths
 import javax.inject.Inject
 
 class RemoteTrackRepository @Inject constructor(
@@ -46,30 +47,27 @@ class RemoteTrackRepository @Inject constructor(
         val filePath = arrayOf(cacheDir, "$video.mp3").joinToString(File.separator)
         Log.d(TAG, "Saving to $filePath")
 
+        if (File(filePath).exists()) {
+            Log.w(TAG, "File exist !! $filePath")
+        }
+
         // https://learntutorials.net/fr/android/topic/1132/retrofit2
         try {
-            var inputStream: InputStream? = null
-            var outputStream: OutputStream? = null
-            try {
-                val fileReader = ByteArray(4096)
-                var fileSizeDownloaded: Long = 0
-                inputStream = body.byteStream()
-                outputStream = FileOutputStream(filePath)
-                while (true) {
-                    val read: Int = inputStream.read(fileReader)
-                    if (read == -1) {
-                        break
+            body.byteStream().use { inputStream ->
+                FileOutputStream(filePath).use { outputStream ->
+                    val buffer = ByteArray(4096)
+                    var fileSizeDownloaded: Long = 0
+                    while (true) {
+                        val read: Int = inputStream.read(buffer)
+                        if (read == -1) {
+                            break
+                        }
+                        outputStream.write(buffer, 0, read)
+                        fileSizeDownloaded += read.toLong()
+                        Log.d("File download: ", "$fileSizeDownloaded")
                     }
-                    outputStream.write(fileReader, 0, read)
-                    fileSizeDownloaded += read.toLong()
-                    Log.d("File Download: ", "$fileSizeDownloaded")
+                    outputStream.flush()
                 }
-                outputStream.flush()
-            } catch (e: IOException) {
-                Log.w(TAG, "Should handle exception", e)
-            } finally {
-                inputStream?.close()
-                outputStream?.close()
             }
         } catch (e: IOException) {
             Log.w(TAG, "Should handle exception", e)
