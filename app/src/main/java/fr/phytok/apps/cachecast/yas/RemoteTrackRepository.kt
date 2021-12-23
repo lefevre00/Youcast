@@ -38,7 +38,7 @@ class RemoteTrackRepository @Inject constructor(
     }
 
     fun downloadTrack(video: String) {
-//        yasClient.trackById(video).execute().body()?.let { saveToExternalStorage(it, video) }
+        // TODO  verifier que la track est pas deja presente
         yasClient.trackById(video).execute().body()?.let { saveToMediaStore(it, video) }
     }
 

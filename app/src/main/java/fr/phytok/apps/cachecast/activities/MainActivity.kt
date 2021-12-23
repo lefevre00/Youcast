@@ -19,6 +19,8 @@ class MainActivity : AppCompatActivity() {
 
         findViewById<TextView>(R.id.serverValue).setText(BuildConfig.SERVER)
 
+        // TODO permission: MainActivity should only read
+        // TODO permission: ShareUrlActivity should controle write permission
         requestPermission()
     }
     /**
