@@ -8,21 +8,40 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker.PERMISSION_GRANTED
+import dagger.hilt.android.AndroidEntryPoint
 import fr.phytok.apps.cachecast.BuildConfig
+import fr.phytok.apps.cachecast.LocalTrackRepository
 import fr.phytok.apps.cachecast.R
+import fr.phytok.apps.cachecast.model.Track
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
+
+    @Inject
+    lateinit var localTrackRepository: LocalTrackRepository
+
+    private val trackList = mutableListOf<Track>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        findViewById<TextView>(R.id.serverValue).setText(BuildConfig.SERVER)
+        findViewById<TextView>(R.id.serverValue).text = BuildConfig.SERVER
 
         // TODO permission: MainActivity should only read
         // TODO permission: ShareUrlActivity should controle write permission
         requestPermission()
+
+        loadLocalTracks()
     }
+
+    private fun loadLocalTracks() {
+        trackList.clear()
+        trackList.addAll(localTrackRepository.searchTrack())
+        Log.d(TAG, "Found ${trackList.size} tracks")
+    }
+
     /**
      * Convenience method to check if [Manifest.permission.READ_EXTERNAL_STORAGE] permission
      * has been granted to the app.
@@ -69,7 +88,7 @@ class MainActivity : AppCompatActivity() {
         /** The request code for requesting [Manifest.permission.READ_EXTERNAL_STORAGE] permission. */
         private const val READ_EXTERNAL_STORAGE_REQUEST = 0x1045
 
-        val TAG = "MainActivity"
+        const val TAG = "MainActivity"
     }
 
 }

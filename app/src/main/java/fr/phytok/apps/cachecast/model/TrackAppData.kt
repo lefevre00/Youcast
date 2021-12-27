@@ -1,5 +1,6 @@
 package fr.phytok.apps.cachecast.model
 
+import android.net.Uri
 import fr.phytok.apps.cachecast.yas.Search
 import fr.phytok.apps.cachecast.yas.Thumbnail
 import java.time.Duration
@@ -19,3 +20,11 @@ fun Search.toTrack() : TrackAppData? = items.firstOrNull()?.let {
         it.snippet?.thumbnails?.asIterable()?.firstOrNull()?.value
     )
 }
+
+
+// Container for information about each tracks.
+data class Track(val uri: Uri,
+                 val name: String,
+                 val duration: Int,
+                 val size: Int
+)
