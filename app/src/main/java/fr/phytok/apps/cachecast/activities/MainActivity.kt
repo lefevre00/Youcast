@@ -1,18 +1,30 @@
 package fr.phytok.apps.cachecast.activities
 
-import android.Manifest
 import android.os.Bundle
 import android.util.Log
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
-import androidx.core.content.PermissionChecker.PERMISSION_GRANTED
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.google.android.material.composethemeadapter.MdcTheme
 import dagger.hilt.android.AndroidEntryPoint
 import fr.phytok.apps.cachecast.BuildConfig
 import fr.phytok.apps.cachecast.LocalTrackRepository
 import fr.phytok.apps.cachecast.R
 import fr.phytok.apps.cachecast.model.Track
+import fr.phytok.apps.cachecast.services.PermissionService
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -20,6 +32,8 @@ class MainActivity : AppCompatActivity() {
 
     @Inject
     lateinit var localTrackRepository: LocalTrackRepository
+    @Inject
+    lateinit var permissionService: PermissionService
 
     private val trackList = mutableListOf<Track>()
 
@@ -27,13 +41,40 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        findViewById<TextView>(R.id.serverValue).text = BuildConfig.SERVER
+        val composeView = findViewById<ComposeView>(R.id.compose_view)
+        composeView.setContent {
+            MdcTheme {
+                drawPage()
+            }
+        }
 
-        // TODO permission: MainActivity should only read
         // TODO permission: ShareUrlActivity should controle write permission
-        requestPermission()
+        onStorageReadable {
+            loadLocalTracks()
+        }
+    }
 
-        loadLocalTracks()
+    @Composable
+    private fun drawPage() {
+        Column(modifier = Modifier
+            .padding(10.dp)
+            .border(BorderStroke(2.dp, Color.Black))) {
+
+            Text(text = "Main activity",
+                style = MaterialTheme.typography.subtitle1,
+            )
+            Spacer(modifier  = Modifier.padding(10.dp))
+            Text( text = BuildConfig.SERVER,
+                style = MaterialTheme.typography.subtitle2)
+        }
+    }
+
+    private fun onStorageReadable(block: () -> Unit) {
+        if (permissionService.canReadStorage()) {
+            block()
+        } else {
+            permissionService.askReadStorage(this)
+        }
     }
 
     private fun loadLocalTracks() {
@@ -42,53 +83,18 @@ class MainActivity : AppCompatActivity() {
         Log.d(TAG, "Found ${trackList.size} tracks")
     }
 
-    /**
-     * Convenience method to check if [Manifest.permission.READ_EXTERNAL_STORAGE] permission
-     * has been granted to the app.
-     */
-    private fun haveStoragePermission() =
-        ContextCompat.checkSelfPermission(
-            this,
-            Manifest.permission.READ_EXTERNAL_STORAGE
-        ) == PERMISSION_GRANTED
-
-    /**
-     * Convenience method to request [Manifest.permission.READ_EXTERNAL_STORAGE] permission.
-     */
-    private fun requestPermission() {
-        if (!haveStoragePermission()) {
-            val permissions = arrayOf(
-                Manifest.permission.READ_EXTERNAL_STORAGE,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
-            )
-            ActivityCompat.requestPermissions(this, permissions,
-                READ_EXTERNAL_STORAGE_REQUEST
-            )
-        }
-    }
-
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<String>,
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        when (requestCode) {
-            READ_EXTERNAL_STORAGE_REQUEST -> {
-                if (grantResults.isNotEmpty() && grantResults[0] == PERMISSION_GRANTED) {
-                    Log.d(TAG, "Permission granted")
-                } else {
-                    Log.d(TAG, "Permission refused")
-                }
-            }
+        permissionService.handleResponse(requestCode, grantResults) {
+            loadLocalTracks()
         }
     }
 
     companion object {
-        /** The request code for requesting [Manifest.permission.READ_EXTERNAL_STORAGE] permission. */
-        private const val READ_EXTERNAL_STORAGE_REQUEST = 0x1045
-
         const val TAG = "MainActivity"
     }
-
 }
