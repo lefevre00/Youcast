@@ -26,6 +26,8 @@ class ShareUrlActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         // Dont reference layout to leave quickly (no setContentView(layout) )
 
+        // TODO permission: ShareUrlActivity should controle write permission
+
         when (intent?.action) {
             Intent.ACTION_SEND -> loadTrackData()
             else -> run {
