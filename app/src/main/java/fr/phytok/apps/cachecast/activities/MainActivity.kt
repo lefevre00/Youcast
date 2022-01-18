@@ -1,24 +1,25 @@
 package fr.phytok.apps.cachecast.activities
 
-import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import com.google.android.material.composethemeadapter.MdcTheme
@@ -89,12 +90,28 @@ class MainActivity : AppCompatActivity() {
                             style = MaterialTheme.typography.subtitle2)
                     }
                     // body
-                    items(tracks) { track ->
-//                        Text(text = "Piste : ${track.name}")
-                        Text(text = "${track.name} : ${track.duration}s")
+                    items(tracks) {
+                        track -> TrackCard(track)
                     }
                 }
+            }
+        }
+    }
 
+    private @Composable
+    fun TrackCard(track: Track) {
+        Row {
+            Image(
+                painter = painterResource(R.drawable.ic_launcher_foreground),
+                contentDescription = "Track preview",
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(RoundedCornerShape(5))
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Column {
+                Text(text = track.name, style = MaterialTheme.typography.h5)
+                Text(text = "${track.duration}s",style = MaterialTheme.typography.body1)
             }
         }
     }
@@ -137,10 +154,9 @@ class MainViewModel
         Executors.newScheduledThreadPool(1) // schedule another request for 2 seconds later
             .schedule({
                 Log.d(TAG, "Start loading")
-                Thread.sleep(3000)
                 myTracks.clear()
                 myTracks.addAll(localTrackRepository.searchTrack())
-                Log.d(TAG, "Found ${myTracks.size} tracks")
+                Log.d(TAG, "Found ${myTracks.size} track(s)")
                 loading.value = false
                 Log.d(TAG, "Finish loading")
         }, 2, TimeUnit.SECONDS)
