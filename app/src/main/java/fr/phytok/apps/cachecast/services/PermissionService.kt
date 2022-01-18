@@ -8,7 +8,6 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker.PERMISSION_GRANTED
 import dagger.hilt.android.qualifiers.ActivityContext
-import fr.phytok.apps.cachecast.activities.MainActivity
 import javax.inject.Inject
 
 class PermissionService
@@ -35,10 +34,10 @@ class PermissionService
         when (requestCode) {
             READ_EXTERNAL_STORAGE_REQUEST -> {
                 if (grantResults.isNotEmpty() && grantResults[0] == PERMISSION_GRANTED) {
-                    Log.d(MainActivity.TAG, "Permission granted")
+                    Log.d(TAG, "Permission granted")
                     onGranted()
                 } else {
-                    Log.d(MainActivity.TAG, "Permission refused")
+                    Log.d(TAG, "Permission refused")
                 }
             }
         }
@@ -47,5 +46,6 @@ class PermissionService
     companion object {
         /** The request code for requesting [Manifest.permission.READ_EXTERNAL_STORAGE] permission. */
         const val READ_EXTERNAL_STORAGE_REQUEST = 0x1045
+        const val TAG = "PermissionService"
     }
 }
