@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import com.google.android.material.composethemeadapter.MdcTheme
 import dagger.hilt.android.AndroidEntryPoint
+import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.phytok.apps.cachecast.BuildConfig
 import fr.phytok.apps.cachecast.LocalTrackRepository
 import fr.phytok.apps.cachecast.R
@@ -35,8 +36,6 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
-    @Inject
-    lateinit var localTrackRepository: LocalTrackRepository
     @Inject
     lateinit var permissionService: PermissionService
 
@@ -124,7 +123,11 @@ class MainActivity : AppCompatActivity() {
     }
 }
 
-class MainViewModel : ViewModel() {
+@HiltViewModel
+class MainViewModel
+    @Inject constructor(
+        private val localTrackRepository: LocalTrackRepository
+    ) : ViewModel() {
 
     val loading = mutableStateOf(true)
 
@@ -136,7 +139,7 @@ class MainViewModel : ViewModel() {
                 Log.d(TAG, "Start loading")
                 Thread.sleep(3000)
                 myTracks.clear()
-                myTracks.addAll(listOf(Track(Uri.parse("a"), "More you can, less you do", 12, 12)))
+                myTracks.addAll(localTrackRepository.searchTrack())
                 Log.d(TAG, "Found ${myTracks.size} tracks")
                 loading.value = false
                 Log.d(TAG, "Finish loading")
