@@ -16,7 +16,6 @@ import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
@@ -41,12 +40,11 @@ class MainActivity : AppCompatActivity() {
     @Inject
     lateinit var permissionService: PermissionService
 
-    private val trackList = mutableListOf<Track>()
+    private val model: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        val model: MainViewModel by viewModels()
 
         val composeView = findViewById<ComposeView>(R.id.compose_view)
         composeView.setContent {
@@ -62,7 +60,6 @@ class MainActivity : AppCompatActivity() {
 
     @Composable
     private fun drawPage(model: MainViewModel) {
-        val tracks = model.getTracks()
 
         Column(modifier = Modifier
             .padding(10.dp)
@@ -85,6 +82,7 @@ class MainActivity : AppCompatActivity() {
             if (isLoading) {
                 CircularProgressIndicator()
             } else {
+                val tracks = model.getTracks()
                 LazyColumn {
                     //header
                     item {
@@ -111,9 +109,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun loadLocalTracks() {
-        trackList.clear()
-        trackList.addAll(localTrackRepository.searchTrack())
-        Log.d(TAG, "Found ${trackList.size} tracks")
+        model.loadTracks()
     }
 
     override fun onRequestPermissionsResult(
@@ -126,29 +122,22 @@ class MainActivity : AppCompatActivity() {
             loadLocalTracks()
         }
     }
-
-    companion object {
-        const val TAG = "MainActivity"
-    }
 }
 
 class MainViewModel : ViewModel() {
 
     val loading = mutableStateOf(true)
 
-    private val myTracks: SnapshotStateList<Track> by lazy {
-        mutableStateListOf<Track>().also {
-            loadTracks()
-        }
-    }
+    private val myTracks = mutableStateListOf<Track>()
 
-    private fun loadTracks() {
+    fun loadTracks() {
         Executors.newScheduledThreadPool(1) // schedule another request for 2 seconds later
             .schedule({
                 Log.d(TAG, "Start loading")
                 Thread.sleep(3000)
                 myTracks.clear()
                 myTracks.addAll(listOf(Track(Uri.parse("a"), "More you can, less you do", 12, 12)))
+                Log.d(TAG, "Found ${myTracks.size} tracks")
                 loading.value = false
                 Log.d(TAG, "Finish loading")
         }, 2, TimeUnit.SECONDS)
