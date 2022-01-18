@@ -1,7 +1,6 @@
 package fr.phytok.apps.cachecast.activities
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.BorderStroke
@@ -10,6 +9,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.MaterialTheme
@@ -21,17 +21,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModel
 import com.google.android.material.composethemeadapter.MdcTheme
 import dagger.hilt.android.AndroidEntryPoint
-import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.phytok.apps.cachecast.BuildConfig
-import fr.phytok.apps.cachecast.LocalTrackRepository
 import fr.phytok.apps.cachecast.R
 import fr.phytok.apps.cachecast.model.Track
 import fr.phytok.apps.cachecast.services.PermissionService
-import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -98,15 +93,17 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private @Composable
-    fun TrackCard(track: Track) {
+    @Composable
+    private fun TrackCard(track: Track) {
         Row {
+            val shape = RoundedCornerShape(5)
             Image(
-                painter = painterResource(R.drawable.ic_launcher_foreground),
+                painter = painterResource(android.R.drawable.btn_star_big_on),
                 contentDescription = "Track preview",
                 modifier = Modifier
                     .size(40.dp)
-                    .clip(RoundedCornerShape(5))
+                    .clip(shape)
+                    .border(1.5.dp, MaterialTheme.colors.secondary, shape)
             )
             Spacer(modifier = Modifier.width(8.dp))
             Column {
@@ -137,34 +134,5 @@ class MainActivity : AppCompatActivity() {
         permissionService.handleResponse(requestCode, grantResults) {
             loadLocalTracks()
         }
-    }
-}
-
-@HiltViewModel
-class MainViewModel
-    @Inject constructor(
-        private val localTrackRepository: LocalTrackRepository
-    ) : ViewModel() {
-
-    val loading = mutableStateOf(true)
-
-    private val myTracks = mutableStateListOf<Track>()
-
-    fun loadTracks() {
-        Executors.newScheduledThreadPool(1) // schedule another request for 2 seconds later
-            .schedule({
-                Log.d(TAG, "Start loading")
-                myTracks.clear()
-                myTracks.addAll(localTrackRepository.searchTrack())
-                Log.d(TAG, "Found ${myTracks.size} track(s)")
-                loading.value = false
-                Log.d(TAG, "Finish loading")
-        }, 2, TimeUnit.SECONDS)
-    }
-
-    fun getTracks(): List<Track> = myTracks
-
-    companion object {
-        private const val TAG = "MainViewModel"
     }
 }
