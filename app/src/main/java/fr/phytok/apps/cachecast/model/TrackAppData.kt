@@ -1,6 +1,7 @@
 package fr.phytok.apps.cachecast.model
 
 import android.net.Uri
+import fr.phytok.apps.cachecast.db.Video
 import fr.phytok.apps.cachecast.yas.Search
 import fr.phytok.apps.cachecast.yas.Thumbnail
 import java.time.Duration
@@ -10,7 +11,9 @@ data class TrackAppData(
     val title: String?,
     val duration: Duration,
     val picture: Thumbnail?
-)
+) {
+    fun toDbTrack() = Video(videoId = id, thumbnailUrl = picture?.url)
+}
 
 fun Search.toTrack() : TrackAppData? = items.firstOrNull()?.let {
     TrackAppData(

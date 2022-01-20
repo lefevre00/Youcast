@@ -8,17 +8,20 @@ import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
 import dagger.hilt.android.qualifiers.ApplicationContext
-import fr.phytok.apps.cachecast.LocalTrackRepository
+import fr.phytok.apps.cachecast.db.VideoDao
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.io.*
+import java.util.concurrent.ExecutorService
 import javax.inject.Inject
 
 class RemoteTrackRepository @Inject constructor(
     private val yasClient: YasApiClient,
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val videoDao: VideoDao,
+    private val executorService: ExecutorService
 ) {
 
     fun getMetadata(video: String, callback: (Search) -> Unit) {
@@ -39,7 +42,18 @@ class RemoteTrackRepository @Inject constructor(
 
     fun downloadTrack(video: String) {
         // TODO  verifier que la track est pas deja presente
-        yasClient.trackById(video).execute().body()?.let { saveToMediaStore(it, video) }
+//        if (exists(video)) {
+//            Log.w(TAG, "Track already downloaded")
+//        } else {
+            yasClient.trackById(video).execute().body()?.let { saveToMediaStore(it, video) }
+//        }
+    }
+
+    private fun exists(videoId: String) : Boolean {
+        val future = executorService.submit<Boolean> {
+            return@submit videoDao.firstByVideoId(videoId)?.let { true } ?: false
+        }
+        return future.get()
     }
 
     private fun saveToMediaStore(body: ResponseBody, video: String) {

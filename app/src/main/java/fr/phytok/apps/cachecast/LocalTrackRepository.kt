@@ -7,11 +7,16 @@ import android.os.Build
 import android.provider.MediaStore
 import android.util.Log
 import dagger.hilt.android.qualifiers.ApplicationContext
+import fr.phytok.apps.cachecast.db.VideoDao
 import fr.phytok.apps.cachecast.model.Track
+import fr.phytok.apps.cachecast.model.TrackAppData
+import java.util.concurrent.ExecutorService
 import javax.inject.Inject
 
 class LocalTrackRepository @Inject constructor(
-    @ApplicationContext private val applicationContext: Context
+    @ApplicationContext private val applicationContext: Context,
+    private val videoDao: VideoDao,
+    private val executorService: ExecutorService
 ) {
 
     fun searchTrack(): List<Track> {
@@ -78,6 +83,10 @@ class LocalTrackRepository @Inject constructor(
             }
         }
         return tracks
+    }
+
+    fun save(track: TrackAppData) {
+        executorService.execute { videoDao.insert(track.toDbTrack()) }
     }
 
     companion object {
