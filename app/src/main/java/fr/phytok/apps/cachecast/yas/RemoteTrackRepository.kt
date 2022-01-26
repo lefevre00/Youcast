@@ -49,13 +49,6 @@ class RemoteTrackRepository @Inject constructor(
 //        }
     }
 
-    private fun exists(videoId: String) : Boolean {
-        val future = executorService.submit<Boolean> {
-            return@submit videoDao.firstByVideoId(videoId)?.let { true } ?: false
-        }
-        return future.get()
-    }
-
     private fun saveToMediaStore(body: ResponseBody, video: String) {
         // Add a media item that other apps shouldn't see until the item is
 // fully written to the media store.

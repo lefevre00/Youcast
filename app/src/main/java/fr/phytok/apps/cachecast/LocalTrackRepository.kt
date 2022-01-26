@@ -89,7 +89,14 @@ class LocalTrackRepository @Inject constructor(
         executorService.execute { videoDao.insert(track.toDbTrack()) }
     }
 
+    fun exists(videoId: String) : Boolean {
+        val future = executorService.submit<Boolean> {
+            return@submit videoDao.firstByVideoId(videoId)?.let { true } ?: false
+        }
+        return future.get()
+    }
+
     companion object {
-        private val TAG = "LocalTrackRepository"
+        private const val TAG = "LocalTrackRepository"
     }
 }
