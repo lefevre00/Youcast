@@ -1,6 +1,5 @@
 package fr.phytok.apps.cachecast.activities
 
-import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -22,7 +21,6 @@ class ShareViewModel @Inject constructor(
     val askedUrl = mutableStateOf("")
 
     fun tryToLoadUrl(videoUrl: String, onResult: (LoadResult) -> Unit) {
-        Log.i(TAG, "received share with url $videoUrl")
         askedUrl.value = videoUrl
         requestStatus.value = "Loading metadata..."
         videoUrl
@@ -33,6 +31,7 @@ class ShareViewModel @Inject constructor(
                     requestStatus.value = "Track already cached !"
                     onResult(LoadResult(inCache = true))
                 } else {
+                    // WArning of format like https://youtube.com/watch?v=UGYBc4tRK5I&feature=share
                     remoteTrackRepository.getMetadata(videoId) { search ->
                         requestStatus.value = "Download requested..."
                         search.toTrack()?.let { track ->
