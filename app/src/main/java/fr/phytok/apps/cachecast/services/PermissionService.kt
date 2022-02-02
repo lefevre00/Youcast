@@ -35,6 +35,7 @@ class PermissionService
     }
 
     fun askWriteStorage(activity: Activity) {
+        // Todo handle permission refused with message to user
         doRequestPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE)
     }
 
