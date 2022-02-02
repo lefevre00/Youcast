@@ -18,7 +18,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dagger.hilt.android.AndroidEntryPoint
-import fr.phytok.apps.cachecast.model.TrackAppData
+import fr.phytok.apps.cachecast.model.TrackDto
 import fr.phytok.apps.cachecast.services.DownloadService
 import fr.phytok.apps.cachecast.services.PermissionService
 import javax.inject.Inject
@@ -50,17 +50,16 @@ class ShareUrlActivity : AppCompatActivity() {
                     if (result.inCache) {
                         Log.d(TAG, "Track already known")
                     } else {
-                        result.trackAppData?.let { askForDownload(it) }
+                        result.trackDto?.let { askForDownload(it) }
                     }
                 }
             } ?: run {
                 Log.d(TAG, "No extra text received")
-                finish()
             }
         } else {
             Log.w(TAG, "Unhandled intent action: ${intent?.action}")
-            finish()
         }
+        finish()
     }
 
     @Composable
@@ -87,17 +86,16 @@ class ShareUrlActivity : AppCompatActivity() {
         }
     }
 
-    private fun askForDownload(track: TrackAppData) {
+    private fun askForDownload(track: TrackDto) {
         Intent(this, DownloadService::class.java).also { newIntent ->
             newIntent.action = DownloadService.ACTION_LOAD
-            newIntent.putExtra(ShareViewModel.EXTRA_KEY, track.id)
+            newIntent.putExtra(ShareViewModel.EXTRA_ID, track.id)
             startService(newIntent)
         }
-        finish()
     }
 
     companion object {
-        const val EXTRA_KEY = "KEY"
+        const val EXTRA_KEY = "fr.phytok.apps.cachecast.extra.key"
         private const val TAG = "ShareUrlActivity"
     }
 }

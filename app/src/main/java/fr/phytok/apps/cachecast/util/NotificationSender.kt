@@ -19,7 +19,7 @@ import fr.phytok.apps.cachecast.GlobalNotificationBuilder
 import fr.phytok.apps.cachecast.NotificationUtil
 import fr.phytok.apps.cachecast.R
 import fr.phytok.apps.cachecast.activities.DownloadStatusActivity
-import fr.phytok.apps.cachecast.model.TrackAppData
+import fr.phytok.apps.cachecast.model.TrackDto
 import fr.phytok.apps.cachecast.services.DownloadService
 import javax.inject.Inject
 
@@ -29,7 +29,7 @@ class NotificationSender @Inject constructor(
 
     private val mNotificationManagerCompat = NotificationManagerCompat.from(context)
 
-    fun showNotification(track: TrackAppData) {
+    fun showNotification(track: TrackDto) {
 
         Log.d(TAG, "In notifyUrlReceived")
 

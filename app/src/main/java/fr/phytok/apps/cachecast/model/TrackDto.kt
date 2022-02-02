@@ -6,7 +6,7 @@ import fr.phytok.apps.cachecast.yas.Search
 import fr.phytok.apps.cachecast.yas.Thumbnail
 import java.time.Duration
 
-data class TrackAppData(
+data class TrackDto(
     val id: String,
     val title: String?,
     val duration: Duration,
@@ -15,8 +15,8 @@ data class TrackAppData(
     fun toDbTrack() = Video(videoId = id, thumbnailUrl = picture?.url)
 }
 
-fun Search.toTrack() : TrackAppData? = items.firstOrNull()?.let {
-    TrackAppData(
+fun Search.toTrack() : TrackDto? = items.firstOrNull()?.let {
+    TrackDto(
         id = it.id!!,
         title = it.snippet?.title,
         Duration.parse(it.contentDetails?.duration),

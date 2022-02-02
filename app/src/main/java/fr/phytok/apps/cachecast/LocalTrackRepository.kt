@@ -9,7 +9,7 @@ import android.util.Log
 import dagger.hilt.android.qualifiers.ApplicationContext
 import fr.phytok.apps.cachecast.db.VideoDao
 import fr.phytok.apps.cachecast.model.Track
-import fr.phytok.apps.cachecast.model.TrackAppData
+import fr.phytok.apps.cachecast.model.TrackDto
 import java.util.concurrent.ExecutorService
 import javax.inject.Inject
 
@@ -85,7 +85,7 @@ class LocalTrackRepository @Inject constructor(
         return tracks
     }
 
-    fun save(track: TrackAppData) {
+    fun save(track: TrackDto) {
         executorService.execute { videoDao.insert(track.toDbTrack()) }
     }
 

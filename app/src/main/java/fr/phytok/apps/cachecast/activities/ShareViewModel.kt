@@ -4,7 +4,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.phytok.apps.cachecast.LocalTrackRepository
-import fr.phytok.apps.cachecast.model.TrackAppData
+import fr.phytok.apps.cachecast.model.TrackDto
 import fr.phytok.apps.cachecast.model.toTrack
 import fr.phytok.apps.cachecast.util.NotificationSender
 import fr.phytok.apps.cachecast.yas.RemoteTrackRepository
@@ -37,7 +37,7 @@ class ShareViewModel @Inject constructor(
                         search.toTrack()?.let { track ->
                             localTrackRepository.save(track)
                             notificationSender.showNotification(track)
-                            onResult(LoadResult(trackAppData = track))
+                            onResult(LoadResult(trackDto = track))
                         }
                     }
                 }
@@ -46,10 +46,10 @@ class ShareViewModel @Inject constructor(
 
 
     companion object {
-        const val EXTRA_KEY = "KEY"
+        const val EXTRA_ID = "KEY"
         private const val TAG = "ShareViewModel"
     }
 
 }
 
-data class LoadResult(val inCache: Boolean = false, val trackAppData: TrackAppData? = null)
+data class LoadResult(val inCache: Boolean = false, val trackDto: TrackDto? = null)
