@@ -8,8 +8,8 @@ import android.widget.Toast
 import androidx.core.app.NotificationManagerCompat
 import dagger.hilt.android.AndroidEntryPoint
 import fr.phytok.apps.cachecast.activities.ShareUrlActivity
+import fr.phytok.apps.cachecast.util.NotificationSender
 import fr.phytok.apps.cachecast.yas.RemoteTrackRepository
-import fr.phytok.apps.cachecast.yas.YasApiClient
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -45,8 +45,7 @@ class DownloadService : Service() {
             }
 
             Log.d(TAG, "Start loading sound track")
-            // Normally we would do some work here, like download a file.
-            // For our sample, we just sleep for 5 seconds.
+
             try {
                 url?.split('/')?.last()?.let { trackId ->
                     remoteTrackRepository.downloadTrack(trackId)
@@ -54,8 +53,12 @@ class DownloadService : Service() {
                 }
                 Thread.sleep(3000)
             } catch (e: InterruptedException) {
+                Log.e(TAG, "Download interrupted")
                 // Restore interrupt status.
                 Thread.currentThread().interrupt()
+            } finally {
+                // TODO associated notification ID with Room-track
+                closeNotification(NotificationSender.NOTIFICATION_ID)
             }
 
             // Stop the service using the startId, so that we don't stop
@@ -64,11 +67,17 @@ class DownloadService : Service() {
         }
     }
 
+    private fun closeNotification(notifId: Int) {
+        Log.i(TAG, "Request to stop notif $notifId")
+        NotificationManagerCompat.from(this).cancel(notifId)
+    }
+
     private fun alertNotifDisabled() {
         Log.i(TAG,"Notif disabled")
     }
 
     private fun showNotif(url: String?) {
+        // TODO Check if it's possible to toast from Service
         // Launch system notif here
         Log.i(TAG,"Notif enabled")
         Toast.makeText(applicationContext, "Notif $url", Toast.LENGTH_SHORT).show()
@@ -121,8 +130,7 @@ class DownloadService : Service() {
             .getIntExtra(EXTRA_NOTIF_ID, 0)
             .takeIf { it > 0 }
             ?.let {
-                Log.i(TAG, "ASk to stop notif $it")
-                NotificationManagerCompat.from(this).cancel(it)
+                closeNotification(it)
             } ?: run {
             Log.i(TAG, "No notif to stop")
         }
@@ -133,8 +141,4 @@ class DownloadService : Service() {
         // We don't provide binding, so return null
         return null
     }
-
-//    override fun onDestroy() {
-//        Toast.makeText(this, "service done", Toast.LENGTH_SHORT).show()
-//    }
 }
