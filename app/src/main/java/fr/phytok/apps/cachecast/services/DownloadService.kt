@@ -67,6 +67,7 @@ class DownloadService : Service() {
     private fun closeNotification(notifId: Int) {
         Log.i(TAG, "Request to stop notif $notifId")
         NotificationManagerCompat.from(this).cancel(notifId)
+        Toast.makeText(applicationContext, "Closing Notif ", Toast.LENGTH_LONG).show()
     }
 
     private fun alertNotifDisabled() {
@@ -74,7 +75,6 @@ class DownloadService : Service() {
     }
 
     private fun showNotif(url: String?) {
-        // TODO Check if it's possible to toast from Service
         // Launch system notif here
         Log.i(TAG,"Notif enabled")
         Toast.makeText(applicationContext, "Notif $url", Toast.LENGTH_SHORT).show()
