@@ -15,8 +15,6 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class DownloadService : Service() {
 
-    // TODO : notif not close after download
-
     companion object {
         val TAG = "DownloadService"
         private val prefix = "fr.phytok.apps.cachecast"
@@ -57,7 +55,6 @@ class DownloadService : Service() {
                 // Restore interrupt status.
                 Thread.currentThread().interrupt()
             } finally {
-                // TODO associated notification ID with Room-track
                 closeNotification(NotificationSender.NOTIFICATION_ID)
             }
 

@@ -9,6 +9,7 @@ interface YasApiClient {
     @GET("get/{videoId}")
     fun metaById(@Path("videoId") videoId: String) : Call<Search>
 
+    // TODO store as soon as the stream begin
     @GET("cache/{videoId}")
     fun trackById(@Path("videoId") videoId: String) : Call<ResponseBody>
 }

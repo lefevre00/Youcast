@@ -17,7 +17,7 @@ class ShareViewModel @Inject constructor(
     private val notificationSender: NotificationSender
 ): ViewModel() {
 
-    val requestStatus = mutableStateOf("Coucou")
+    val requestStatus = mutableStateOf("May download track")
     val askedUrl = mutableStateOf("")
 
     fun tryToLoadUrl(videoUrl: String, onResult: (LoadResult) -> Unit) {

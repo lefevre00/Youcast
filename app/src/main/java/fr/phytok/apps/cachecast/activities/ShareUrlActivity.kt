@@ -20,6 +20,8 @@ import androidx.compose.ui.unit.dp
 import dagger.hilt.android.AndroidEntryPoint
 import fr.phytok.apps.cachecast.model.TrackAppData
 import fr.phytok.apps.cachecast.services.DownloadService
+import fr.phytok.apps.cachecast.services.PermissionService
+import javax.inject.Inject
 
 
 @AndroidEntryPoint
@@ -27,16 +29,23 @@ class ShareUrlActivity : AppCompatActivity() {
 
     private val myViewModel: ShareViewModel by viewModels()
 
+    @Inject
+    lateinit var permissionService: PermissionService
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             DrawScreen()
         }
 
-        // TODO permission: ShareUrlActivity should control write permission
+        onStorageWritable {
+            handleAction()
+        }
+    }
 
-        when (intent?.action) {
-            Intent.ACTION_SEND -> intent.getStringExtra(Intent.EXTRA_TEXT)?.let { url ->
+    private fun handleAction() {
+        if (intent?.action == Intent.ACTION_SEND) {
+            intent.getStringExtra(Intent.EXTRA_TEXT)?.let { url ->
                 myViewModel.tryToLoadUrl(url) { result ->
                     if (result.inCache) {
                         Log.d(TAG, "Track already known")
@@ -48,10 +57,9 @@ class ShareUrlActivity : AppCompatActivity() {
                 Log.d(TAG, "No extra text received")
                 finish()
             }
-            else -> run {
-                Log.w(TAG, "Unhandled intent action: ${intent?.action}")
-                finish()
-            }
+        } else {
+            Log.w(TAG, "Unhandled intent action: ${intent?.action}")
+            finish()
         }
     }
 
@@ -68,6 +76,14 @@ class ShareUrlActivity : AppCompatActivity() {
 
             val status by remember { myViewModel.requestStatus }
             Text(text = status, style = MaterialTheme.typography.h5)
+        }
+    }
+
+    private fun onStorageWritable(block: () -> Unit) {
+        if (permissionService.canWriteStorage()) {
+            block()
+        } else {
+            permissionService.askWriteStorage(this)
         }
     }
 
