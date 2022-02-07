@@ -12,18 +12,34 @@ import fr.phytok.apps.cachecast.util.NotificationSender
 import fr.phytok.apps.cachecast.yas.RemoteTrackRepository
 import javax.inject.Inject
 
+data class DownloadRequest(
+    val id: String,
+    val title: String,
+    val channel: String,
+    val duration: Long?,
+) {
+    fun escapedTitle() = title.replace(" ", "_")
+}
+
+fun Bundle.toDownloadRequest(): DownloadRequest = DownloadRequest(
+    getString(ShareUrlActivity.EXTRA_ID) ?: "",
+    getString(ShareUrlActivity.EXTRA_TITLE) ?: "",
+    getString(ShareUrlActivity.EXTRA_CHANNEL) ?: "",
+    getLong(ShareUrlActivity.EXTRA_DURATION, 0)
+)
+
 @AndroidEntryPoint
 class DownloadService : Service() {
 
     companion object {
         val TAG = "DownloadService"
         private val prefix = "fr.phytok.apps.cachecast"
-        val ACTION_CANCEL  = "$prefix.action.cancel"
-        val ACTION_LOAD  = "$prefix.action.load"
+        val ACTION_CANCEL = "$prefix.action.cancel"
+        val ACTION_LOAD = "$prefix.action.load"
         val EXTRA_NOTIF_ID = "$prefix.extra.notification.id"
     }
 
-    lateinit var mNotificationManagerCompat : NotificationManagerCompat
+    lateinit var mNotificationManagerCompat: NotificationManagerCompat
     private var serviceLooper: Looper? = null
     private var serviceHandler: ServiceHandler? = null
 
@@ -35,9 +51,9 @@ class DownloadService : Service() {
 
         override fun handleMessage(msg: Message) {
 
-            val url = msg.data.getString(ShareUrlActivity.EXTRA_KEY)
+            val downloadRquest = msg.data.toDownloadRequest()
             if (mNotificationManagerCompat.areNotificationsEnabled()) {
-                showNotif(url)
+                showNotif(downloadRquest.id)
             } else {
                 alertNotifDisabled()
             }
@@ -45,14 +61,16 @@ class DownloadService : Service() {
             Log.d(TAG, "Start loading sound track")
 
             try {
-                url?.split('/')?.last()?.let { trackId ->
-                    remoteTrackRepository.downloadTrack(trackId)
+                if (downloadRquest.id.isNotBlank()) {
+                    remoteTrackRepository.downloadTrack(downloadRquest)
                     Log.d(TAG, "Loaded sound track")
                 }
-                Thread.sleep(3000)
             } catch (e: InterruptedException) {
                 Log.e(TAG, "Download interrupted")
                 // Restore interrupt status.
+                Thread.currentThread().interrupt()
+            } catch (e: Exception) {
+                Log.e(TAG, "Other exception", e)
                 Thread.currentThread().interrupt()
             } finally {
                 closeNotification(NotificationSender.NOTIFICATION_ID)
@@ -67,16 +85,15 @@ class DownloadService : Service() {
     private fun closeNotification(notifId: Int) {
         Log.i(TAG, "Request to stop notif $notifId")
         NotificationManagerCompat.from(this).cancel(notifId)
-        Toast.makeText(applicationContext, "Closing Notif ", Toast.LENGTH_LONG).show()
     }
 
     private fun alertNotifDisabled() {
-        Log.i(TAG,"Notif disabled")
+        Log.i(TAG, "Notif disabled")
     }
 
     private fun showNotif(url: String?) {
         // Launch system notif here
-        Log.i(TAG,"Notif enabled")
+        Log.i(TAG, "Notif enabled")
         Toast.makeText(applicationContext, "Notif $url", Toast.LENGTH_SHORT).show()
     }
 
@@ -112,7 +129,17 @@ class DownloadService : Service() {
         serviceHandler?.obtainMessage()?.also { msg ->
             msg.arg1 = startId
             msg.data = Bundle().apply {
-                putString(ShareUrlActivity.EXTRA_KEY, intent.getStringExtra(ShareUrlActivity.EXTRA_KEY))
+                arrayOf(
+                    ShareUrlActivity.EXTRA_ID,
+                    ShareUrlActivity.EXTRA_TITLE,
+                    ShareUrlActivity.EXTRA_CHANNEL,
+                    ShareUrlActivity.EXTRA_DURATION
+                )
+                    .forEach { extra ->
+                        intent.getStringExtra(extra)?.let {
+                            putString(extra, it)
+                        }
+                    }
             }
             serviceHandler?.sendMessage(msg)
         }

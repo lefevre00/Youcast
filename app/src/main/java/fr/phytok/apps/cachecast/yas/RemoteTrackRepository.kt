@@ -9,6 +9,7 @@ import android.provider.MediaStore
 import android.util.Log
 import dagger.hilt.android.qualifiers.ApplicationContext
 import fr.phytok.apps.cachecast.db.VideoDao
+import fr.phytok.apps.cachecast.services.DownloadRequest
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Callback
@@ -40,11 +41,11 @@ class RemoteTrackRepository @Inject constructor(
             })
     }
 
-    fun downloadTrack(video: String) {
-        yasClient.trackById(video).execute().body()?.let { saveToMediaStore(it, video) }
+    fun downloadTrack(video: DownloadRequest) {
+        yasClient.trackById(video.id).execute().body()?.let { saveToMediaStore(it, video) }
     }
 
-    private fun saveToMediaStore(body: ResponseBody, video: String) {
+    private fun saveToMediaStore(body: ResponseBody, video: DownloadRequest) {
         // Add a media item that other apps shouldn't see until the item is
 // fully written to the media store.
         val resolver = context.contentResolver
@@ -59,16 +60,18 @@ class RemoteTrackRepository @Inject constructor(
                 MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
             }
 
+        // TODO BIZARRE : les fichiers sont créés dans /Sdcard/Android/Data/cachecast/files/MUSIC, mais ils sont vide
         val songDetails = ContentValues().apply {
-            val title = "'$video.mp3'"
-            put(MediaStore.Audio.Media.DISPLAY_NAME, title)
+            val title = "${video.escapedTitle()}.mp3"
+            val quoted = "'$title'"
+            put(MediaStore.Audio.Media.DISPLAY_NAME, quoted)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 put(MediaStore.Audio.Media.IS_PENDING, 1)
             }
 
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q){
                 val directory = context.getExternalFilesDir(Environment.DIRECTORY_MUSIC)
-                put(MediaStore.Audio.Media.DATA, "${directory}$title")
+                put(MediaStore.Audio.Media.DATA, "${directory}${File.separator}$title")
             }
         }
 
@@ -76,6 +79,7 @@ class RemoteTrackRepository @Inject constructor(
         resolver.insert(audioCollection, songDetails)?.let { songContentUri ->
             trackUri = songContentUri
             resolver.openFileDescriptor(songContentUri, "w", null)?.use { pfd ->
+                Log.d(TAG, "File descriptor opened")
                 FileOutputStream(pfd.fileDescriptor).use { outputStream ->
                     body.byteStream().use { inputStream ->
                         copyContent(inputStream, outputStream)
@@ -121,6 +125,7 @@ class RemoteTrackRepository @Inject constructor(
     }
 
     private fun copyContent(inputStream: InputStream, outputStream: FileOutputStream) {
+        Log.d(TAG, "Copying content to file stream")
         val buffer = ByteArray(4096)
         var fileSizeDownloaded: Long = 0
         while (true) {

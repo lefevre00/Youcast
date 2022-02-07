@@ -9,7 +9,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.MaterialTheme
@@ -31,6 +30,8 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
+
+    // TODO refresh on resume
 
     @Inject
     lateinit var permissionService: PermissionService
@@ -107,7 +108,7 @@ class MainActivity : AppCompatActivity() {
             )
             Spacer(modifier = Modifier.width(8.dp))
             Column {
-                Text(text = track.name, style = MaterialTheme.typography.h5)
+                Text(text = track.title, style = MaterialTheme.typography.h5)
                 Text(text = "${track.duration}s",style = MaterialTheme.typography.body1)
             }
         }

@@ -43,13 +43,6 @@ class ShareViewModel @Inject constructor(
                 }
             }
     }
-
-
-    companion object {
-        const val EXTRA_ID = "KEY"
-        private const val TAG = "ShareViewModel"
-    }
-
 }
 
 data class LoadResult(val inCache: Boolean = false, val trackDto: TrackDto? = null)

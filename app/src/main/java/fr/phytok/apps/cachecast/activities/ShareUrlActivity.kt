@@ -1,6 +1,7 @@
 package fr.phytok.apps.cachecast.activities
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.compose.setContent
@@ -44,11 +45,13 @@ class ShareUrlActivity : AppCompatActivity() {
     }
 
     private fun handleAction() {
+        var doFinish = true
         if (intent?.action == Intent.ACTION_SEND) {
             intent.getStringExtra(Intent.EXTRA_TEXT)?.let { url ->
                 myViewModel.tryToLoadUrl(url) { result ->
                     if (result.inCache) {
                         Log.d(TAG, "Track already known")
+                        doFinish = false
                     } else {
                         result.trackDto?.let { askForDownload(it) }
                     }
@@ -59,7 +62,9 @@ class ShareUrlActivity : AppCompatActivity() {
         } else {
             Log.w(TAG, "Unhandled intent action: ${intent?.action}")
         }
-        finish()
+        if (doFinish) {
+            finish()
+        }
     }
 
     @Composable
@@ -89,13 +94,21 @@ class ShareUrlActivity : AppCompatActivity() {
     private fun askForDownload(track: TrackDto) {
         Intent(this, DownloadService::class.java).also { newIntent ->
             newIntent.action = DownloadService.ACTION_LOAD
-            newIntent.putExtra(ShareViewModel.EXTRA_ID, track.id)
+            newIntent.putExtra(EXTRA_ID, track.id)
+            newIntent.putExtra(EXTRA_TITLE, track.title)
+            newIntent.putExtra(EXTRA_CHANNEL, track.channel)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                newIntent.putExtra(EXTRA_DURATION, track.duration.toSeconds())
+            }
             startService(newIntent)
         }
     }
 
     companion object {
-        const val EXTRA_KEY = "fr.phytok.apps.cachecast.extra.key"
+        const val EXTRA_ID = "fr.phytok.apps.cachecast.extra.key"
+        const val EXTRA_TITLE = "fr.phytok.apps.cachecast.extra.title"
+        const val EXTRA_CHANNEL = "fr.phytok.apps.cachecast.extra.channel"
+        const val EXTRA_DURATION = "fr.phytok.apps.cachecast.extra.duration"
         private const val TAG = "ShareUrlActivity"
     }
 }

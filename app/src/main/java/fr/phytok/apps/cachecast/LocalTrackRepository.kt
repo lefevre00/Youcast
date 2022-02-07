@@ -10,6 +10,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import fr.phytok.apps.cachecast.db.VideoDao
 import fr.phytok.apps.cachecast.model.Track
 import fr.phytok.apps.cachecast.model.TrackDto
+import java.io.File
 import java.util.concurrent.ExecutorService
 import javax.inject.Inject
 
@@ -21,7 +22,7 @@ class LocalTrackRepository @Inject constructor(
 
     fun searchTrack(): List<Track> {
 
-        var tracks = listOf<Track>()
+        val tracks = mutableListOf<Track>()
         val collection =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 MediaStore.Audio.Media.getContentUri(
@@ -30,11 +31,12 @@ class LocalTrackRepository @Inject constructor(
             } else {
                 MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
             }
+        // TODO : refresh provider for deleted files
 
         val projection = arrayOf(
             MediaStore.Audio.Media._ID,
             MediaStore.Audio.Media.DISPLAY_NAME,
-            MediaStore.Audio.Media.DISPLAY_NAME,
+            MediaStore.Audio.Media.ARTIST,
             MediaStore.Audio.Media.DURATION,
             MediaStore.Audio.Media.SIZE
         )
@@ -58,8 +60,10 @@ class LocalTrackRepository @Inject constructor(
                 cursor ->
             // Cache column indices.
             val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)
-            val nameColumn =
+            val titleColumn =
                 cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DISPLAY_NAME)
+            val artistColumn =
+                cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST)
             val durationColumn =
                 cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION)
             val sizeColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.SIZE)
@@ -67,10 +71,11 @@ class LocalTrackRepository @Inject constructor(
             while (cursor.moveToNext()) {
                 // Get values of columns for a given track.
                 val id = cursor.getLong(idColumn)
-                val name = cursor.getString(nameColumn)
+                val title = cursor.getString(titleColumn)
+                val channel = cursor.getString(artistColumn)
                 val duration = cursor.getInt(durationColumn)
                 val size = cursor.getInt(sizeColumn)
-                Log.d(TAG, "Reading track $name")
+                Log.d(TAG, "Reading track $title")
 
                 val contentUri: Uri = ContentUris.withAppendedId(
                     MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
@@ -79,10 +84,40 @@ class LocalTrackRepository @Inject constructor(
 
                 // Stores column values and the contentUri in a local object
                 // that represents the media file.
-                tracks += Track(contentUri, name, duration, size)
+                if (isNonEmptyFile(contentUri)) {
+                    tracks += Track(contentUri, title, channel, duration, size)
+                }
             }
         }
         return tracks
+    }
+
+    private fun isNonEmptyFile(contentUri: Uri): Boolean {
+        val projection = arrayOf(MediaStore.MediaColumns.DATA)
+        applicationContext.contentResolver.query(contentUri, projection, null, null, null)?.let { cursor ->
+            cursor.use {
+                if (cursor.moveToFirst()) {
+                    val filePath = cursor.getString(0);
+                    val file = File(filePath)
+                    if (!file.exists()) {
+                        Log.w(TAG, "File does not exist: $contentUri")
+                        return false
+                    }
+                    if (file.length() == 0L) {
+                        Log.w(TAG, "File is empty: $contentUri")
+                        return false
+                    }
+                    Log.d(TAG, "File is not empty: $contentUri")
+                    return true
+                } else {
+                    Log.w(TAG, "No file path for $contentUri")
+                }
+            }
+        } ?: run {
+            Log.d(TAG, "No cursor fetched for $contentUri")
+        }
+
+        return false
     }
 
     fun save(track: TrackDto) {

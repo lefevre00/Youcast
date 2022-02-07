@@ -14,7 +14,8 @@ data class VideoSnippet(
     // format "2008-04-20T22:17:15Z"
     var publishedAt: String = "",
     var title: String = "",
-    var thumbnails: Map<String, Thumbnail>? = null
+    var thumbnails: Map<String, Thumbnail>? = null,
+    var channelTitle: String = ""
 )
 
 data class Thumbnail(
