@@ -31,8 +31,6 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
-    // TODO refresh on resume
-
     @Inject
     lateinit var permissionService: PermissionService
 
@@ -45,7 +43,7 @@ class MainActivity : AppCompatActivity() {
         val composeView = findViewById<ComposeView>(R.id.compose_view)
         composeView.setContent {
             MdcTheme {
-                drawPage(model)
+                DrawPage(model)
             }
         }
 
@@ -54,8 +52,13 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        loadLocalTracks()
+    }
+
     @Composable
-    private fun drawPage(model: MainViewModel) {
+    private fun DrawPage(model: MainViewModel) {
 
         Column(modifier = Modifier
             .padding(10.dp)

@@ -60,7 +60,6 @@ class RemoteTrackRepository @Inject constructor(
                 MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
             }
 
-        // TODO BIZARRE : les fichiers sont créés dans /Sdcard/Android/Data/cachecast/files/MUSIC, mais ils sont vide
         val songDetails = ContentValues().apply {
             val title = "${video.escapedTitle()}.mp3"
             val quoted = "'$title'"
@@ -68,6 +67,8 @@ class RemoteTrackRepository @Inject constructor(
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 put(MediaStore.Audio.Media.IS_PENDING, 1)
             }
+            // TODO affichage de la durée marche pas -> voir si elle est bien persistée
+            put(MediaStore.Audio.Media.DURATION, video.duration)
 
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q){
                 val directory = context.getExternalFilesDir(Environment.DIRECTORY_MUSIC)
@@ -97,30 +98,6 @@ class RemoteTrackRepository @Inject constructor(
                 resolver.update(trackUri!!, songDetails, null, null)
                 Log.d(TAG, "Track marked as ready to use")
             }
-        }
-    }
-
-    private fun saveToExternalStorage(body: ResponseBody, video: String) {
-        // TODO store as soon as the stream begin
-        Log.d(TAG, "MP3 track received")
-
-        val cacheDir = context.getExternalFilesDir(null)
-        val filePath = arrayOf(cacheDir, "$video.mp3").joinToString(File.separator)
-        Log.d(TAG, "Saving to $filePath")
-
-        if (File(filePath).exists()) {
-            Log.w(TAG, "File exist !! $filePath")
-        }
-
-        // https://learntutorials.net/fr/android/topic/1132/retrofit2
-        try {
-            body.byteStream().use { inputStream ->
-                FileOutputStream(filePath).use { outputStream ->
-                    copyContent(inputStream, outputStream)
-                }
-            }
-        } catch (e: IOException) {
-            Log.w(TAG, "Should handle exception", e)
         }
     }
 
