@@ -17,11 +17,16 @@ class MainViewModel
         private val localTrackRepository: LocalTrackRepository
     ) : ViewModel() {
 
-    val loading = mutableStateOf(true)
+    val loading = mutableStateOf(false)
 
     private val myTracks = mutableStateListOf<Track>()
 
     fun loadTracks() {
+        if (loading.value) {
+            return
+        }
+
+        loading.value = true
         Executors.newScheduledThreadPool(1) // schedule another request for 2 seconds later
             .schedule({
                 Log.d(TAG, "Start loading")
